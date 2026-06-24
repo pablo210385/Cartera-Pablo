@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cartera · Pablo García</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#06080f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cartera">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080f;
+  --surface: #0d1117;
+  --surface2: #131920;
+  --border: rgba(255,255,255,0.06);
+  --text: #e8edf5;
+  --muted: #4a5568;
+  --dim: #2d3748;
+  --pu: #a78bfa;
+  --pu2: rgba(167,139,250,0.12);
+  --cy: #38bdf8;
+  --cy2: rgba(56,189,248,0.1);
+  --gr: #4ade80;
+  --gr2: rgba(74,222,128,0.1);
+  --rd: #f87171;
+  --rd2: rgba(248,113,113,0.1);
+  --am: #fbbf24;
+  --am2: rgba(251,191,36,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Syne',sans-serif;
+  min-height:100vh;overflow-x:hidden;
+  padding-bottom:env(safe-area-inset-bottom,20px);
+}
+body::before{content:'';position:fixed;top:-30%;left:-20%;width:70%;height:70%;background:radial-gradient(ellipse,rgba(56,189,248,0.03) 0%,transparent 70%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(167,139,250,0.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(6,8,15,0.95);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;z-index:200;
+  padding-bottom:env(safe-area-inset-bottom,8px);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:10px 4px 6px;background:none;border:none;cursor:pointer;
+  color:var(--muted);font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:0.5px;text-transform:uppercase;transition:color 0.2s;gap:3px;
+}
+.nav-btn .nav-icon{font-size:18px;line-height:1}
+.nav-btn.active{color:var(--pu)}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:transparent;margin-top:2px}
+.nav-btn.active .nav-dot{background:var(--pu)}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding-bottom:90px;position:relative;z-index:1}
+.screen.active{display:block}
+
+/* ── HEADER ── */
+.pg-header{
+  padding:44px 20px 16px;
+  border-bottom:1px solid var(--border);
+}
+.eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.pg-title{font-size:clamp(22px,6vw,34px);font-weight:800;color:#f8fafc;letter-spacing:-0.8px;line-height:1.1}
+.pg-title span{background:linear-gradient(135deg,var(--pu),var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pg-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.status-dot.ok{background:var(--gr);box-shadow:0 0 6px var(--gr)}
+.status-dot.err{background:var(--rd)}
+.status-dot.loading{background:var(--am);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── REFRESH BTN ── */
+.refresh-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:100px;padding:5px 12px;
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;
+  color:var(--muted);cursor:pointer;text-transform:uppercase;
+  transition:all 0.2s;margin-top:10px;
+}
+.refresh-btn:active{background:rgba(255,255,255,0.08)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:10px;height:10px;border:1.5px solid var(--dim);border-top-color:var(--am);border-radius:50%;animation:spin .7s linear infinite}
+
+/* ── HERO STATS ── */
+.hero-wrap{padding:16px 16px 0}
+.hero-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:18px;overflow:hidden;position:relative;
+}
+.hero-card::before{
+  content:'';position:absolute;top:-40%;right:-20%;width:60%;height:120%;
+  background:radial-gradient(ellipse,rgba(167,139,250,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.hero-value{font-size:clamp(28px,8vw,40px);font-weight:800;letter-spacing:-1px;line-height:1}
+.hero-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:5px}
+.hero-stats{display:flex;gap:0;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.hero-stat{flex:1;padding:0 12px;border-right:1px solid var(--border)}
+.hero-stat:first-child{padding-left:0}
+.hero-stat:last-child{border-right:none}
+.hs-val{font-size:14px;font-weight:700}
+.hs-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+
+/* ── SECTION LABEL ── */
+.sec-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;padding:20px 16px 8px}
+
+/* ── POSICIÓN CARD ── */
+.pos-list{padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.pos-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px 14px 14px 16px;border-left-width:3px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all 0.2s;
+}
+.pos-card:active{transform:scale(0.99);background:var(--surface2)}
+.pos-ticker{
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+  letter-spacing:1px;color:var(--cy);
+  width:44px;flex-shrink:0;
+}
+.pos-info{flex:1;min-width:0}
+.pos-name{font-size:13px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pos-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+.pos-right{text-align:right;flex-shrink:0}
+.pos-val{font-size:14px;font-weight:700}
+.pos-pyg{font-family:'DM Mono',monospace;font-size:9px;margin-top:3px}
+.edit-arrow{color:var(--dim);font-size:14px;flex-shrink:0}
+
+/* colores pyg */
+.up{color:var(--gr)}.dn{color:var(--rd)}.flat{color:var(--am)}
+
+/* ── BADGES ── */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;border:1px solid}
+.pill-up{background:var(--gr2);color:var(--gr);border-color:rgba(74,222,128,0.2)}
+.pill-dn{background:var(--rd2);color:var(--rd);border-color:rgba(248,113,113,0.2)}
+.pill-flat{background:var(--am2);color:var(--am);border-color:rgba(251,191,36,0.2)}
+.pill-cy{background:var(--cy2);color:var(--cy);border-color:rgba(56,189,248,0.2)}
+.pill-pu{background:var(--pu2);color:var(--pu);border-color:rgba(167,139,250,0.2)}
+
+/* ── FONDOS (MI) ── */
+.fondo-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px;display:flex;align-items:center;gap:12px;
+}
+.fondo-ticker{font-family:'DM Mono',monospace;font-size:8px;color:var(--pu);width:44px;flex-shrink:0;letter-spacing:0.5px}
+.fondo-info{flex:1;min-width:0}
+.fondo-name{font-size:12px;font-weight:700;color:#f1f5f9}
+.fondo-tipo{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+.fondo-right{text-align:right;flex-shrink:0}
+.fondo-aprtc{font-family:'DM Mono',monospace;font-size:9px;color:var(--gr);margin-top:3px}
+
+/* ── APORTACIONES ── */
+.aprt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px}
+.aprt-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px}
+.aprt-name{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px}
+.aprt-val{font-size:20px;font-weight:800;color:var(--gr);margin-top:4px}
+.aprt-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);margin-top:2px}
+.aprt-total{grid-column:1/-1;background:rgba(74,222,128,0.05);border-color:rgba(74,222,128,0.2)}
+
+/* ── GLOBAL PLATFORM ── */
+.platform-list{padding:0 16px;display:flex;flex-direction:column;gap:6px}
+.platform-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+}
+.plat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.plat-info{flex:1}
+.plat-name{font-size:13px;font-weight:600;color:#f1f5f9}
+.plat-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+.plat-right{text-align:right;flex-shrink:0}
+.plat-val{font-size:14px;font-weight:700}
+.plat-pct{font-family:'DM Mono',monospace;font-size:9px;margin-top:2px}
+
+/* ── BARS ── */
+.bar-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px}
+.bar-row{margin-bottom:12px}
+.bar-row:last-child{margin-bottom:0}
+.bar-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.bar-name{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px}
+.bar-pct{font-family:'DM Mono',monospace;font-size:9px;font-weight:500}
+.bar-track{height:4px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
+
+/* ── OBJETIVOS ── */
+.obj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px 8px}
+.obj-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.obj-name{font-size:14px;font-weight:700;color:#f1f5f9}
+.obj-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px}
+.obj-pct{font-size:22px;font-weight:800;color:var(--am)}
+.obj-track{height:4px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden}
+.obj-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--pu),var(--cy))}
+
+/* ── SYNC ── */
+.sync-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px}
+.sync-title{font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.sync-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.sync-btns{display:flex;gap:8px}
+.sync-btn{
+  flex:1;padding:11px;border-radius:10px;
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  border:none;cursor:pointer;transition:opacity 0.2s;
+}
+.sync-btn:active{opacity:0.8}
+.sync-btn-export{background:var(--cy2);color:var(--cy);border:1px solid rgba(56,189,248,0.2)}
+.sync-btn-import{background:var(--gr2);color:var(--gr);border:1px solid rgba(74,222,128,0.2)}
+
+/* ── BOTTOM SHEET ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.sheet-overlay.open{opacity:1;pointer-events:all}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#0d1117;border:1px solid var(--border);border-radius:22px 22px 0 0;
+  z-index:301;padding:14px 18px calc(env(safe-area-inset-bottom,0px) + 24px);
+  transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:3px;background:var(--dim);border-radius:100px;margin:0 auto 16px}
+.sheet-co{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sheet-ico{
+  width:42px;height:42px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-weight:700;color:var(--cy);font-size:9px;letter-spacing:1px;
+}
+.sheet-co-name{font-size:17px;font-weight:800;color:#f1f5f9}
+.sheet-co-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+.sheet-mkt{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:14px}
+.sheet-mkt-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.sheet-mkt-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+.sheet-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.sheet-field label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
+.sheet-field input{
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'DM Mono',monospace;font-size:16px;
+  padding:12px 14px;width:100%;outline:none;transition:border-color 0.2s;
+}
+.sheet-field input:focus{border-color:var(--pu);background:rgba(167,139,250,0.05)}
+.field-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);margin-top:5px}
+.sheet-btns{display:flex;gap:8px}
+.sheet-btn{
+  flex:1;padding:13px;border-radius:12px;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  border:none;cursor:pointer;transition:opacity 0.2s;
+}
+.sheet-btn:active{opacity:0.85}
+.sheet-btn-save{background:linear-gradient(135deg,var(--pu),var(--cy));color:#06080f}
+.sheet-btn-cancel{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px) + 8px);
+  left:50%;transform:translateX(-50%);
+  background:var(--surface2);border:1px solid var(--border);border-radius:100px;
+  padding:9px 18px;font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--text);z-index:400;white-space:nowrap;
+  opacity:0;transition:opacity 0.2s;pointer-events:none;
+}
+.toast.show{opacity:1}
+
+/* ── PP ROW ── */
+.pp-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px;display:flex;align-items:center;gap:12px;margin:0 16px;
+}
+.pp-ico{width:40px;height:40px;border-radius:10px;background:var(--pu2);border:1px solid rgba(167,139,250,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeUp 0.3s ease both}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ SCREEN: TR ══════════════════════════ -->
+<div class="screen active" id="screen-tr">
+  <div class="pg-header">
+    <div class="eyebrow">Broker · España</div>
+    <h1 class="pg-title">Trade <span>Republic</span></h1>
+    <div class="pg-meta">
+      <span class="status-dot" id="sd-tr"></span>
+      <span id="ps-tr">Actualizando precios…</span>
+    </div>
+    <button class="refresh-btn" onclick="fetchPrices()"><span id="fetch-icon">↻</span> Actualizar</button>
+  </div>
+
+  <div class="hero-wrap animate">
+    <div class="hero-card">
+      <div class="hero-label">Valor de mercado total</div>
+      <div class="hero-value" id="tr-hero">—</div>
+      <div class="hero-sub">13 posiciones · Trade Republic</div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hs-val" id="tr-h-cost">—</div>
+          <div class="hs-lbl">Invertido</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hs-val" id="tr-h-pyg">—</div>
+          <div class="hs-lbl">PyG €</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hs-val" id="tr-h-pct">—</div>
+          <div class="hs-lbl">Rentab.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Posiciones · toca para editar</div>
+  <div class="pos-list animate" id="tr-list"></div>
+</div>
+
+<!-- ══════════════════════════ SCREEN: MI ══════════════════════════ -->
+<div class="screen" id="screen-mi">
+  <div class="pg-header">
+    <div class="eyebrow">Fondos indexados</div>
+    <h1 class="pg-title">My<span>Investor</span></h1>
+    <div class="pg-meta"><span style="font-family:'DM Mono',monospace">Datos: 19 jun 2026</span></div>
+  </div>
+
+  <div class="hero-wrap animate">
+    <div class="hero-card">
+      <div class="hero-label">Valor total fondos</div>
+      <div class="hero-value" id="mi-hero">—</div>
+      <div class="hero-sub">5 fondos indexados · renta variable global</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-val" id="mi-h-cost">—</div><div class="hs-lbl">Invertido</div></div>
+        <div class="hero-stat"><div class="hs-val" id="mi-h-pyg">—</div><div class="hs-lbl">Ganancia</div></div>
+        <div class="hero-stat"><div class="hs-val" id="mi-h-pct">—</div><div class="hs-lbl">Rentab.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Fondos de renta variable</div>
+  <div class="pos-list animate" id="mi-list"></div>
+
+  <div class="sec-label">Plan de pensiones</div>
+  <div class="pp-item animate">
+    <div class="pp-ico">🏦</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;color:#f1f5f9">MyInvestor Plan Pensiones</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px">Plan de pensiones · largo plazo</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:14px;font-weight:700">853,76 €</div>
+      <div style="margin-top:3px"><span class="pill pill-up">+8,99%</span></div>
+    </div>
+  </div>
+
+  <div class="sec-label">Aportaciones automáticas</div>
+  <div class="aprt-grid animate">
+    <div class="aprt-card"><div class="aprt-name">iShares Dev. World</div><div class="aprt-val">300 €</div><div class="aprt-date">15/07/2026</div></div>
+    <div class="aprt-card"><div class="aprt-name">MI Indexado Global</div><div class="aprt-val">125 €</div><div class="aprt-date">25/06/2026</div></div>
+    <div class="aprt-card"><div class="aprt-name">Vanguard Small-Cap</div><div class="aprt-val">125 €</div><div class="aprt-date">06/07/2026</div></div>
+    <div class="aprt-card"><div class="aprt-name">iShares Emerg. Mkt</div><div class="aprt-val">75 €</div><div class="aprt-date">05/07/2026</div></div>
+    <div class="aprt-card"><div class="aprt-name">Fidelity MSCI EU</div><div class="aprt-val">50 €</div><div class="aprt-date">30/06/2026</div></div>
+    <div class="aprt-card aprt-total"><div class="aprt-name">Total mensual</div><div class="aprt-val" style="font-size:26px">675 €</div><div class="aprt-date">automatizado</div></div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══════════════════════════ SCREEN: IBKR ══════════════════════════ -->
+<div class="screen" id="screen-ibkr">
+  <div class="pg-header">
+    <div class="eyebrow">Broker · Internacional</div>
+    <h1 class="pg-title">Interactive <span>Brokers</span></h1>
+    <div class="pg-meta">
+      <span class="status-dot" id="sd-ibkr"></span>
+      <span id="ps-ibkr">Actualizando…</span>
+    </div>
+    <button class="refresh-btn" onclick="fetchPrices()"><span>↻</span> Actualizar</button>
+  </div>
+
+  <div class="hero-wrap animate">
+    <div class="hero-card">
+      <div class="hero-label">Valor de mercado (USD)</div>
+      <div class="hero-value" id="ibkr-hero">—</div>
+      <div class="hero-sub">4 posiciones · dividendos</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-val" id="ibkr-h-cost">—</div><div class="hs-lbl">Invertido</div></div>
+        <div class="hero-stat"><div class="hs-val" id="ibkr-h-pyg">—</div><div class="hs-lbl">PyG $</div></div>
+        <div class="hero-stat"><div class="hs-val" id="ibkr-h-pct">—</div><div class="hs-lbl">Rentab.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Posiciones · toca para editar</div>
+  <div class="pos-list animate" id="ibkr-list"></div>
+</div>
+
+<!-- ══════════════════════════ SCREEN: GLOBAL ══════════════════════════ -->
+<div class="screen" id="screen-global">
+  <div class="pg-header">
+    <div class="eyebrow">Patrimonio total</div>
+    <h1 class="pg-title">Vista <span>Global</span></h1>
+    <div class="pg-meta"><span style="font-family:'DM Mono',monospace">jun 2026 · estimado</span></div>
+  </div>
+
+  <div class="hero-wrap animate">
+    <div class="hero-card" style="background:linear-gradient(135deg,#0d1117,#111827)">
+      <div class="hero-label">Patrimonio total estimado</div>
+      <div class="hero-value" style="background:linear-gradient(135deg,var(--pu),var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent">~44.365 €</div>
+      <div class="hero-sub">Todas las plataformas · jun 2026</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-val up">~35.000 €</div><div class="hs-lbl">Invertido</div></div>
+        <div class="hero-stat"><div class="hs-val" style="color:var(--am)">~3.253 €</div><div class="hs-lbl">Efectivo</div></div>
+        <div class="hero-stat"><div class="hs-val" style="color:var(--cy)">675 €</div><div class="hs-lbl">Aprtc./mes</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Por plataforma</div>
+  <div class="platform-list animate">
+    <div class="platform-item"><div class="plat-dot" style="background:#34d399"></div><div class="plat-info"><div class="plat-name">Fondos MyInvestor</div><div class="plat-sub">5 fondos indexados · RV global</div></div><div class="plat-right"><div class="plat-val">21.480 €</div><div class="plat-pct up">↑ 11,11%</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#818cf8"></div><div class="plat-info"><div class="plat-name">Dividendos Freedom24</div><div class="plat-sub">15 posiciones · portf. val.</div></div><div class="plat-right"><div class="plat-val">15.068 €</div><div class="plat-pct" style="color:var(--muted)">—</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#38bdf8"></div><div class="plat-info"><div class="plat-name">Trade Republic</div><div class="plat-sub" id="g-tr-sub">13 acciones</div></div><div class="plat-right"><div class="plat-val" id="g-tr-val">—</div><div class="plat-pct" id="g-tr-pct" style="color:#38bdf8">—</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#94a3b8"></div><div class="plat-info"><div class="plat-name">Interactive Brokers</div><div class="plat-sub">4 posiciones</div></div><div class="plat-right"><div class="plat-val" id="g-ib-val">—</div><div class="plat-pct" id="g-ib-pct" style="color:#94a3b8">—</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#fb923c"></div><div class="plat-info"><div class="plat-name">Inmobiliario (Urbanitae)</div><div class="plat-sub">3 proyectos</div></div><div class="plat-right"><div class="plat-val">1.507 €</div><div class="plat-pct" style="color:var(--muted)">3,4%</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#fbbf24"></div><div class="plat-info"><div class="plat-name">Efectivo total</div><div class="plat-sub">MyInvestor + Freedom24</div></div><div class="plat-right"><div class="plat-val">3.253 €</div><div class="plat-pct" style="color:var(--muted)">7,3%</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#f87171"></div><div class="plat-info"><div class="plat-name">Pensiones + P2P (Mintos)</div><div class="plat-sub">PP MyInvestor · Mintos 761 €</div></div><div class="plat-right"><div class="plat-val">1.615 €</div><div class="plat-pct" style="color:var(--muted)">3,6%</div></div></div>
+  </div>
+
+  <div class="sec-label">Distribución</div>
+  <div class="bar-card animate" id="bar-card">
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Fondos indexados</span><span class="bar-pct" style="color:#34d399">48,4%</span></div><div class="bar-track"><div class="bar-fill" style="width:48.4%;background:#34d399"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Freedom24</span><span class="bar-pct" style="color:#818cf8">34,0%</span></div><div class="bar-track"><div class="bar-fill" style="width:34%;background:#818cf8"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Trade Republic</span><span class="bar-pct" id="g-tr-bar-pct" style="color:#38bdf8">—</span></div><div class="bar-track"><div class="bar-fill" id="g-tr-bar" style="width:0%;background:#38bdf8"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Efectivo</span><span class="bar-pct" style="color:#fbbf24">7,3%</span></div><div class="bar-track"><div class="bar-fill" style="width:7.3%;background:#fbbf24"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">IBKR</span><span class="bar-pct" id="g-ib-bar-pct" style="color:#94a3b8">—</span></div><div class="bar-track"><div class="bar-fill" id="g-ib-bar" style="width:0%;background:#94a3b8"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Inmobiliario</span><span class="bar-pct" style="color:#fb923c">3,4%</span></div><div class="bar-track"><div class="bar-fill" style="width:3.4%;background:#fb923c"></div></div></div>
+    <div class="bar-row" style="margin-bottom:0"><div class="bar-meta"><span class="bar-name">Pensiones + P2P</span><span class="bar-pct" style="color:#f87171">3,6%</span></div><div class="bar-track"><div class="bar-fill" style="width:3.6%;background:#f87171"></div></div></div>
+  </div>
+
+  <div class="sec-label">Objetivos</div>
+  <div class="obj-card animate"><div class="obj-row"><div><div class="obj-name">Capital 100.000 €</div><div class="obj-sub">Horizonte 2031 · actual ~44.365 €</div></div><div class="obj-pct">44%</div></div><div class="obj-track"><div class="obj-fill" style="width:44.4%"></div></div></div>
+  <div style="height:8px"></div>
+  <div class="obj-card animate"><div class="obj-row"><div><div class="obj-name">1.000 €/mes pasivos</div><div class="obj-sub">Horizonte 2029 · est. ~200 €/mes</div></div><div class="obj-pct" style="color:var(--rd)">20%</div></div><div class="obj-track"><div class="obj-fill" style="width:20%;background:linear-gradient(90deg,var(--rd),var(--am))"></div></div></div>
+  <div style="height:8px"></div>
+  <div class="obj-card animate"><div class="obj-row"><div><div class="obj-name">Libertad financiera</div><div class="obj-sub">Horizonte 2036 · gastos ≤ ingresos pasivos</div></div><div class="obj-pct" style="color:var(--muted)">—</div></div><div class="obj-track"><div class="obj-fill" style="width:10%;background:linear-gradient(90deg,var(--muted),var(--pu))"></div></div></div>
+
+  <div class="sec-label">Sincronizar datos</div>
+  <div class="sync-card animate">
+    <div class="sync-title">Exportar · Importar posiciones</div>
+    <div class="sync-sub">Exporta un JSON con tus PMs y acciones. Importa ese archivo en otro dispositivo para sincronizar.</div>
+    <div class="sync-btns">
+      <button class="sync-btn sync-btn-export" onclick="exportData()">📤 Exportar</button>
+      <button class="sync-btn sync-btn-import" onclick="document.getElementById('imp-inp').click()">📥 Importar</button>
+      <input type="file" id="imp-inp" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nb-tr" onclick="showScreen('tr')"><span class="nav-icon">🏦</span><span>TR</span><span class="nav-dot"></span></button>
+  <button class="nav-btn" id="nb-mi" onclick="showScreen('mi')"><span class="nav-icon">📈</span><span>MI</span><span class="nav-dot"></span></button>
+  <button class="nav-btn" id="nb-ibkr" onclick="showScreen('ibkr')"><span class="nav-icon">🌍</span><span>IBKR</span><span class="nav-dot"></span></button>
+  <button class="nav-btn" id="nb-global" onclick="showScreen('global')"><span class="nav-icon">🌐</span><span>Global</span><span class="nav-dot"></span></button>
+</nav>
+
+<!-- ══ BOTTOM SHEET ══ -->
+<div class="sheet-overlay" id="sh-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-co">
+    <div class="sheet-ico" id="sh-ico">—</div>
+    <div><div class="sheet-co-name" id="sh-name">—</div><div class="sheet-co-sub" id="sh-sub">Editar posición</div></div>
+  </div>
+  <div class="sheet-mkt">
+    <span class="sheet-mkt-lbl" id="sh-mkt-lbl">Precio de mercado actual</span>
+    <span class="sheet-mkt-val" id="sh-mkt">—</span>
+  </div>
+  <div class="sheet-fields">
+    <div class="sheet-field">
+      <label id="sh-lbl-shares">Acciones</label>
+      <input type="number" id="sh-shares" inputmode="decimal" min="0">
+      <div class="field-hint" id="sh-hint-shares">Actualiza si compraste o vendiste</div>
+    </div>
+    <div class="sheet-field">
+      <label id="sh-lbl-pm">Precio medio compra (€/$)</label>
+      <input type="number" id="sh-pm" inputmode="decimal" step="0.0001" min="0">
+      <div class="field-hint" id="sh-hint-pm">Tu coste medio real por acción</div>
+    </div>
+    <div class="sheet-field" id="sh-field-vp" style="display:none">
+      <label>Valor liquidativo actual (€/part.)</label>
+      <input type="number" id="sh-vp" inputmode="decimal" step="0.0001" min="0">
+      <div class="field-hint">VL del fondo hoy · consulta en MyInvestor</div>
+    </div>
+  </div>
+  <div class="sheet-btns">
+    <button class="sheet-btn sheet-btn-cancel" onclick="closeSheet()">Cancelar</button>
+    <button class="sheet-btn sheet-btn-save" onclick="saveSheet()">Guardar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATOS ─────────────────────────────────────────────────────────────────────
+const LS_KEY = 'cartera_pablo_v3';
+const EUR_USD_DEF = 0.886;
+let EUR_USD = EUR_USD_DEF;
+
+const trDefault = [
+  {t:'NVO',   n:'Novo-Nordisk',           yahoo:'NVO',   cur:'USD', s:48,  c:53.37,  m:46.77*EUR_USD_DEF, bc:'#38bdf8'},
+  {t:'UNH',   n:'UnitedHealth Group',     yahoo:'UNH',   cur:'USD', s:5,   c:440.54, m:408.01*EUR_USD_DEF,bc:'#f87171'},
+  {t:'LVMH',  n:'LVMH Moët Hennessy',     yahoo:'MC.PA', cur:'EUR', s:3,   c:495.81, m:466.00,             bc:'#fbbf24'},
+  {t:'PEP',   n:'PepsiCo Inc',            yahoo:'PEP',   cur:'USD', s:11,  c:125.61, m:142.02*EUR_USD_DEF, bc:'#4ade80'},
+  {t:'CNI',   n:'Canadian Nat. Railway',  yahoo:'CNI',   cur:'USD', s:11,  c:92.59,  m:114.79*EUR_USD_DEF, bc:'#38bdf8'},
+  {t:'HRL',   n:'Hormel Foods',           yahoo:'HRL',   cur:'USD', s:50,  c:23.70,  m:24.99*EUR_USD_DEF,  bc:'#4ade80'},
+  {t:'O',     n:'Realty Income',          yahoo:'O',     cur:'USD', s:17,  c:48.94,  m:62.14*EUR_USD_DEF,  bc:'#a78bfa'},
+  {t:'MSFT',  n:'Microsoft Corp',         yahoo:'MSFT',  cur:'USD', s:2,   c:539.16, m:371.53*EUR_USD_DEF, bc:'#38bdf8'},
+  {t:'V',     n:'Visa Inc',              yahoo:'V',     cur:'USD', s:2,   c:267.36, m:330.21*EUR_USD_DEF, bc:'#4ade80'},
+  {t:'ACN',   n:'Accenture PLC',          yahoo:'ACN',   cur:'USD', s:4,   c:198.49, m:124.83*EUR_USD_DEF, bc:'#f87171'},
+  {t:'CMCSA', n:'Comcast Corp',           yahoo:'CMCSA', cur:'USD', s:20,  c:23.54,  m:22.79*EUR_USD_DEF,  bc:'#fbbf24'},
+  {t:'NKE',   n:'Nike (B)',              yahoo:'NKE',   cur:'USD', s:6,   c:68.52,  m:79.00*EUR_USD_DEF,  bc:'#f87171'},
+  {t:'DEO',   n:'Diageo PLC (ADR)',       yahoo:'DEO',   cur:'USD', s:50,  c:23.79,  m:22.00,              bc:'#a78bfa'},
+];
+const ibDefault = [
+  {t:'OKE',  n:'ONEOK Inc',         yahoo:'OKE',  cur:'USD', s:10, c:78.00,  m:85.06,  bc:'#4ade80'},
+  {t:'BABA', n:'Alibaba Group ADR', yahoo:'BABA', cur:'USD', s:4,  c:115.00, m:102.60, bc:'#f87171'},
+  {t:'ARCC', n:'Ares Capital Corp', yahoo:'ARCC', cur:'USD', s:30, c:19.00,  m:17.90,  bc:'#fbbf24'},
+  {t:'VICI', n:'VICI Properties',   yahoo:'VICI', cur:'USD', s:33, c:28.50,  m:26.40,  bc:'#a78bfa'},
+];
+// np=participaciones, pm=precio medio compra/part., vp=valor liquidativo actual/part.
+const miF = [
+  {t:'IWDA',  n:'iShares Developed World',   tipo:'RV Global',     np:0, pm:0, vp:0, aprtc:300},
+  {t:'EIMI',  n:'iShares Emerging Markets',  tipo:'RV Emergentes', np:0, pm:0, vp:0, aprtc:75},
+  {t:'VGSC',  n:'Vanguard Global Small-Cap', tipo:'RV Small-Cap',  np:0, pm:0, vp:0, aprtc:125},
+  {t:'FPEX',  n:'Fidelity MSCI Europe',      tipo:'RV Europa',     np:0, pm:0, vp:0, aprtc:50},
+  {t:'GTRSO', n:'MI Indexado Global',        tipo:'RV Global',     np:0, pm:0, vp:0, aprtc:125},
+  {t:'GRPTR', n:'Groupama Trésorerie',       tipo:'Liquidez',      np:0, pm:0, vp:0, aprtc:0},
+];
+
+function loadLS() { try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}');}catch(e){return {};} }
+function saveLS() {
+  const out={};
+  trP.forEach(p=>{out['tr_'+p.t]={s:p.s,c:p.c};});
+  ibP.forEach(p=>{out['ib_'+p.t]={s:p.s,c:p.c};});
+  miF.forEach(p=>{out['mi_'+p.t]={np:p.np,pm:p.pm,vp:p.vp};});
+  try{localStorage.setItem(LS_KEY,JSON.stringify(out));}catch(e){}
+}
+function applyLS(arr,prefix) {
+  const sv=loadLS();
+  arr.forEach(p=>{
+    const d=sv[prefix+p.t]; if(!d) return;
+    if(prefix==='mi_'){
+      if(d.np!=null)p.np=d.np; if(d.pm!=null)p.pm=d.pm; if(d.vp!=null)p.vp=d.vp;
+    } else {
+      if(d.s!=null)p.s=d.s; if(d.c!=null)p.c=d.c;
+    }
+  });
+}
+
+const trP = trDefault.map(d=>({...d}));
+const ibP = ibDefault.map(d=>({...d}));
+applyLS(trP,'tr_'); applyLS(ibP,'ib_'); applyLS(miF,'mi_');
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const SCREENS = ['tr','mi','ibkr','global'];
+function showScreen(id) {
+  SCREENS.forEach(s=>{
+    document.getElementById('screen-'+s).classList.toggle('active',s===id);
+    document.getElementById('nb-'+s).classList.toggle('active',s===id);
+  });
+  window.scrollTo(0,0);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function fmt(n,d=2){if(n==null||isNaN(n))return'—';return n.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function pyg(n){return(n>=0?'+':'')+fmt(n,2);}
+function pct(n){return(n>=0?'+':'')+fmt(n,2)+'%';}
+function pygCls(n){return n>0.5?'up':n<-0.5?'dn':'flat';}
+function pillCls(n){return'pill '+(n>0.5?'pill-up':n<-0.5?'pill-dn':'pill-flat');}
+
+function toast(msg,ms=2000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+// ── RENDER TR ─────────────────────────────────────────────────────────────────
+function renderTR(){
+  const list=document.getElementById('tr-list'); list.innerHTML='';
+  let tc=0,tm=0;
+  trP.forEach((p,i)=>{
+    const cost=p.s*p.c,mkt=p.s*p.m,ga=mkt-cost,gp=cost>0?(ga/cost)*100:0;
+    tc+=cost;tm+=mkt;
+    const el=document.createElement('div');
+    el.className='pos-card';
+    el.style.borderLeftColor=p.bc;
+    el.onclick=()=>openSheet('tr',i);
+    el.innerHTML=`
+      <div class="pos-ticker">${p.t}</div>
+      <div class="pos-info">
+        <div class="pos-name">${p.n}</div>
+        <div class="pos-meta">${p.s} acc · PM ${fmt(p.c)} €</div>
+      </div>
+      <div class="pos-right">
+        <div class="pos-val">${fmt(mkt)} €</div>
+        <div class="pos-pyg ${pygCls(ga)}">${pyg(ga)} € · ${pct(gp)}</div>
+      </div>
+      <span class="edit-arrow">›</span>`;
+    list.appendChild(el);
+  });
+  const g=tm-tc,gp=tc>0?(g/tc)*100:0;
+  document.getElementById('tr-hero').textContent=fmt(tm)+' €';
+  document.getElementById('tr-h-cost').textContent=fmt(tc)+' €';
+  const pe=document.getElementById('tr-h-pyg');pe.textContent=pyg(g)+' €';pe.className='hs-val '+pygCls(g);
+  const pp=document.getElementById('tr-h-pct');pp.textContent=pct(gp);pp.className='hs-val '+pygCls(gp);
+  document.getElementById('g-tr-val').textContent=fmt(tm)+' €';
+  document.getElementById('g-tr-sub').textContent='13 acc · PyG '+pyg(g)+' €';
+  const p2=+(tm/44365*100).toFixed(1);
+  document.getElementById('g-tr-pct').textContent='~'+p2+'%';
+  document.getElementById('g-tr-bar-pct').textContent='~'+p2+'%';
+  document.getElementById('g-tr-bar').style.width=Math.min(p2,100)+'%';
+}
+
+// ── RENDER MI ─────────────────────────────────────────────────────────────────
+const MI_COLORS = {'RV Global':'#38bdf8','RV Emergentes':'#f87171','RV Small-Cap':'#fbbf24','RV Europa':'#4ade80','Liquidez':'#a78bfa'};
+function renderMI(){
+  const list=document.getElementById('mi-list'); list.innerHTML='';
+  let tm=0,tc=0;
+  miF.forEach((p,i)=>{
+    const hasDatos = p.np>0;
+    const mktVal = hasDatos ? p.np*p.vp : 0;
+    const costVal= hasDatos ? p.np*p.pm : 0;
+    if(hasDatos){tm+=mktVal;tc+=costVal;}
+    const ga=mktVal-costVal, gp=costVal>0?(ga/costVal)*100:0;
+    const col=MI_COLORS[p.tipo]||'#a78bfa';
+    const el=document.createElement('div');
+    el.className='pos-card';
+    el.style.borderLeftColor=col;
+    el.onclick=()=>openSheet('mi',i);
+    el.innerHTML=`
+      <div class="pos-ticker" style="color:${col}">${p.t}</div>
+      <div class="pos-info">
+        <div class="pos-name">${p.n}</div>
+        <div class="pos-meta" style="margin-top:3px">
+          ${hasDatos
+            ? `${fmt(p.np,4)} part. · PM ${fmt(p.pm,4)} €`
+            : `<span style="color:var(--dim)">Toca para introducir datos</span>`
+          }
+        </div>
+        ${hasDatos ? `<div class="pos-meta" style="margin-top:2px">VL actual: ${fmt(p.vp,4)} €/part.</div>` : ''}
+        ${p.aprtc>0 ? `<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gr);margin-top:2px">+${p.aprtc}€/mes</div>` : ''}
+      </div>
+      <div class="pos-right">
+        <div class="pos-val">${hasDatos ? fmt(mktVal)+' €' : '—'}</div>
+        ${hasDatos ? `<div class="pos-pyg"><span class="${pillCls(gp)}">${pct(gp)}</span></div>` : ''}
+        <div style="margin-top:4px"><span class="pill pill-cy" style="color:${col};background:${col}18;border-color:${col}33;font-size:8px">${p.tipo}</span></div>
+      </div>
+      <span class="edit-arrow">›</span>`;
+    list.appendChild(el);
+  });
+  const g=tm-tc,gp=tc>0?(g/tc)*100:0;
+  document.getElementById('mi-hero').textContent=tm>0?fmt(tm)+' €':'Añade tus datos';
+  document.getElementById('mi-h-cost').textContent=tc>0?fmt(tc)+' €':'—';
+  const pe=document.getElementById('mi-h-pyg');pe.textContent=tm>0?pyg(g)+' €':'—';pe.className='hs-val '+pygCls(g);
+  const pp=document.getElementById('mi-h-pct');pp.textContent=tm>0?pct(gp):'—';pp.className='hs-val '+pygCls(gp);
+}
+
+// ── RENDER IBKR ───────────────────────────────────────────────────────────────
+function renderIBKR(){
+  const list=document.getElementById('ibkr-list'); list.innerHTML='';
+  let tc=0,tm=0;
+  ibP.forEach((p,i)=>{
+    const cost=p.s*p.c,mkt=p.s*p.m,ga=mkt-cost,gp=cost>0?(ga/cost)*100:0;
+    tc+=cost;tm+=mkt;
+    const el=document.createElement('div');
+    el.className='pos-card';
+    el.style.borderLeftColor=p.bc;
+    el.onclick=()=>openSheet('ib',i);
+    el.innerHTML=`
+      <div class="pos-ticker">${p.t}</div>
+      <div class="pos-info">
+        <div class="pos-name">${p.n}</div>
+        <div class="pos-meta">${p.s} acc · PM $${fmt(p.c)}</div>
+      </div>
+      <div class="pos-right">
+        <div class="pos-val">$${fmt(mkt)}</div>
+        <div class="pos-pyg ${pygCls(ga)}">${pyg(ga)} $ · ${pct(gp)}</div>
+      </div>
+      <span class="edit-arrow">›</span>`;
+    list.appendChild(el);
+  });
+  const g=tm-tc,gp=tc>0?(g/tc)*100:0;
+  document.getElementById('ibkr-hero').textContent='$'+fmt(tm);
+  document.getElementById('ibkr-h-cost').textContent='$'+fmt(tc);
+  const pe=document.getElementById('ibkr-h-pyg');pe.textContent=pyg(g)+' $';pe.className='hs-val '+pygCls(g);
+  const pp=document.getElementById('ibkr-h-pct');pp.textContent=pct(gp);pp.className='hs-val '+pygCls(gp);
+  const tmE=tm*EUR_USD;
+  document.getElementById('g-ib-val').textContent=fmt(tmE)+' €';
+  const ip=+(tmE/44365*100).toFixed(1);
+  document.getElementById('g-ib-pct').textContent='~'+ip+'%';
+  document.getElementById('g-ib-bar-pct').textContent='~'+ip+'%';
+  document.getElementById('g-ib-bar').style.width=Math.min(ip,100)+'%';
+}
+
+function renderAll(){renderTR();renderMI();renderIBKR();}
+
+// ── BOTTOM SHEET ──────────────────────────────────────────────────────────────
+let shCtx=null;
+function openSheet(ds,idx){
+  const p=ds==='tr'?trP[idx]:ds==='ib'?ibP[idx]:miF[idx];
+  document.getElementById('sh-ico').textContent=p.t;
+  document.getElementById('sh-name').textContent=p.n;
+  // campos vp: solo para fondos MI
+  const vpWrap=document.getElementById('sh-field-vp');
+  const isMi=ds==='mi';
+  vpWrap.style.display=isMi?'block':'none';
+  if(isMi){
+    document.getElementById('sh-sub').textContent=p.tipo;
+    document.getElementById('sh-mkt-lbl').textContent='Valor liquidativo (VL) actual';
+    document.getElementById('sh-mkt').textContent=p.vp>0?fmt(p.vp,4)+' €/part.':'No introducido';
+    document.getElementById('sh-lbl-shares').textContent='Número de participaciones';
+    document.getElementById('sh-lbl-pm').textContent='Precio medio compra (€/part.)';
+    document.getElementById('sh-hint-shares').textContent='Total de participaciones acumuladas';
+    document.getElementById('sh-hint-pm').textContent='Coste medio por participación en euros';
+    document.getElementById('sh-shares').value=p.np>0?p.np:'';
+    document.getElementById('sh-pm').value=p.pm>0?p.pm.toFixed(4):'';
+    document.getElementById('sh-vp').value=p.vp>0?p.vp.toFixed(4):'';
+  } else {
+    document.getElementById('sh-sub').textContent='Ticker: '+p.t;
+    document.getElementById('sh-mkt-lbl').textContent='Precio de mercado actual';
+    const cur=p.cur==='USD'?'$':'€';
+    document.getElementById('sh-mkt').textContent=cur+fmt(p.m)+(p.cur==='USD'?' USD':' EUR');
+    document.getElementById('sh-lbl-shares').textContent='Acciones';
+    document.getElementById('sh-lbl-pm').textContent='Precio medio compra (€/$)';
+    document.getElementById('sh-hint-shares').textContent='Actualiza si compraste o vendiste';
+    document.getElementById('sh-hint-pm').textContent='Tu coste medio real por acción';
+    document.getElementById('sh-shares').value=p.s;
+    document.getElementById('sh-pm').value=p.c.toFixed(2);
+  }
+  shCtx={ds,idx};
+  document.getElementById('sh-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  setTimeout(()=>document.getElementById('sh-shares').focus(),350);
+}
+function closeSheet(){
+  document.getElementById('sh-overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  shCtx=null;
+}
+function saveSheet(){
+  if(!shCtx)return;
+  const {ds,idx}=shCtx;
+  const val=v=>parseFloat(String(v).replace(',','.'));
+  if(ds==='mi'){
+    const p=miF[idx];
+    const np=val(document.getElementById('sh-shares').value);
+    const pm=val(document.getElementById('sh-pm').value);
+    const vp=val(document.getElementById('sh-vp').value);
+    if(!isNaN(np)&&np>=0)p.np=np;
+    if(!isNaN(pm)&&pm>=0)p.pm=pm;
+    if(!isNaN(vp)&&vp>=0)p.vp=vp;
+  } else {
+    const arr=ds==='tr'?trP:ibP;
+    const s=val(document.getElementById('sh-shares').value);
+    const c=val(document.getElementById('sh-pm').value);
+    if(!isNaN(s)&&s>=0)arr[idx].s=s;
+    if(!isNaN(c)&&c>=0)arr[idx].c=c;
+  }
+  saveLS();
+  renderAll();
+  closeSheet();
+  toast('✓ Posición guardada');
+}
+
+// ── FETCH PRECIOS ─────────────────────────────────────────────────────────────
+const SYMS=[...trP.map(p=>p.yahoo),...ibP.map(p=>p.yahoo),'EURUSD=X'].join(',');
+const PROXY='https://corsproxy.io/?url=';
+const YURL=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
+
+function setStatus(ok){
+  ['tr','ibkr'].forEach(id=>{
+    const sd=document.getElementById('sd-'+id);
+    const ps=document.getElementById('ps-'+id);
+    if(!sd||!ps)return;
+    sd.className='status-dot '+(ok===null?'loading':ok?'ok':'err');
+    if(ok===null) ps.textContent='Actualizando precios…';
+  });
+}
+function setStatusDone(ts,n){
+  ['tr','ibkr'].forEach(id=>{
+    const sd=document.getElementById('sd-'+id);
+    const ps=document.getElementById('ps-'+id);
+    if(sd)sd.className='status-dot ok';
+    if(ps)ps.textContent='✓ '+ts+' · '+n+' actualizados';
+  });
+}
+function setStatusErr(){
+  ['tr','ibkr'].forEach(id=>{
+    const sd=document.getElementById('sd-'+id);
+    const ps=document.getElementById('ps-'+id);
+    if(sd)sd.className='status-dot err';
+    if(ps)ps.textContent='Sin conexión · precios estimados';
+  });
+}
+
+async function fetchPrices(){
+  setStatus(null);
+  document.getElementById('fetch-icon').innerHTML='<span class="spin"></span>';
+  try{
+    const res=await fetch(PROXY+encodeURIComponent(YURL));
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    const quotes=data?.quoteResponse?.result||data?.body?.quoteResponse?.result;
+    if(!quotes?.length)throw new Error();
+    const pm={};quotes.forEach(q=>{pm[q.symbol]={price:q.regularMarketPrice};});
+    const eurusd=pm['EURUSD=X']?.price;
+    if(eurusd>0)EUR_USD=1/eurusd;
+    let n=0;
+    trP.forEach(p=>{const q=pm[p.yahoo];if(q?.price>0){p.m=p.cur==='USD'?q.price*EUR_USD:q.price;n++;}});
+    ibP.forEach(p=>{const q=pm[p.yahoo];if(q?.price>0){p.m=q.price;n++;}});
+    renderAll();
+    const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    setStatusDone(ts,n);
+    toast('↻ '+n+' precios actualizados');
+  }catch(e){
+    setStatusErr();
+    toast('⚠ Sin conexión');
+  }
+  document.getElementById('fetch-icon').textContent='↻';
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────────────────────────
+function exportData(){
+  const payload={version:2,fecha:new Date().toISOString(),posiciones:{}};
+  trP.forEach(p=>{payload.posiciones['tr_'+p.t]={s:p.s,c:p.c};});
+  ibP.forEach(p=>{payload.posiciones['ib_'+p.t]={s:p.s,c:p.c};});
+  miF.forEach(p=>{payload.posiciones['mi_'+p.t]={np:p.np,pm:p.pm,vp:p.vp};});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
+  a.download='cartera_pablo_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  toast('📤 Datos exportados');
+}
+function importData(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.posiciones)throw new Error();
+      const pos=data.posiciones;let n=0;
+      trP.forEach(p=>{const sv=pos['tr_'+p.t];if(sv){if(sv.s!=null)p.s=sv.s;if(sv.c!=null)p.c=sv.c;n++;}});
+      ibP.forEach(p=>{const sv=pos['ib_'+p.t];if(sv){if(sv.s!=null)p.s=sv.s;if(sv.c!=null)p.c=sv.c;n++;}});
+      miF.forEach(p=>{const sv=pos['mi_'+p.t];if(sv){if(sv.np!=null)p.np=sv.np;if(sv.pm!=null)p.pm=sv.pm;if(sv.vp!=null)p.vp=sv.vp;n++;}});
+      saveLS();renderAll();
+      toast('✓ '+n+' posiciones importadas');
+    }catch(err){toast('❌ Archivo inválido');}
+    e.target.value='';
+  };
+  r.readAsText(f);
+}
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderAll();
+setTimeout(fetchPrices,500);
+</script>
+</body>
+</html>
