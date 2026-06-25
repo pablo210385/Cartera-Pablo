@@ -134,6 +134,11 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 .modal-btn-save{background:linear-gradient(135deg,var(--pu),var(--cy));color:#06080f}
 .modal-btn-cancel{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
 
+/* ── EDITABLE CELLS ── */
+.ec{cursor:text;border-bottom:1px dashed var(--dim);transition:border-color 0.15s,color 0.15s;white-space:nowrap}
+.ec:hover{border-bottom-color:var(--pu);color:var(--pu)}
+.ec-inp{background:rgba(167,139,250,0.12);border:1px solid var(--pu);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:3px 7px;width:85px;text-align:right;outline:none}
+
 /* ── TOAST ── */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:8px 16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);z-index:200;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
@@ -463,11 +468,12 @@ function renderTR(){
     tc+=cost;tm+=mkt;
     const isCustom=!trDefault.find(d=>d.t===p.t);
     const tr=document.createElement('tr');
+    const sym=p.cur==='USD'?'$':'€';
     tr.innerHTML=`
       <td><div class="td-ticker" style="color:${p.bc}">${p.t}</div><div class="td-name">${p.n}</div></td>
-      <td>${fmt(p.s,0)}</td>
-      <td>${fmt(p.c)} ${p.cur==='USD'?'$':'€'}</td>
-      <td>${fmt(p.m)} ${p.cur==='USD'?'$':'€'}</td>
+      <td><span class="ec" title="Clic para editar" onclick="editCell(this,'tr',${i},'s')">${fmt(p.s,0)}</span></td>
+      <td><span class="ec" title="Clic para editar" onclick="editCell(this,'tr',${i},'c')">${fmt(p.c)} ${sym}</span></td>
+      <td><span class="ec" title="Clic para editar precio" onclick="editCell(this,'tr',${i},'m')">${fmt(p.m)} ${sym}</span></td>
       <td class="td-val">${fmt(mkt)} €</td>
       <td class="${pygCls(ga)}">${pyg(ga)} €</td>
       <td><span class="${badgeCls(gp)}">${pct(gp)}</span></td>
@@ -531,9 +537,9 @@ function renderIBKR(){
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td><div class="td-ticker" style="color:${p.bc}">${p.t}</div><div class="td-name">${p.n}</div></td>
-      <td>${fmt(p.s,0)}</td>
-      <td>$${fmt(p.c)}</td>
-      <td>$${fmt(p.m)}</td>
+      <td><span class="ec" title="Clic para editar" onclick="editCell(this,'ib',${i},'s')">${fmt(p.s,0)}</span></td>
+      <td><span class="ec" title="Clic para editar" onclick="editCell(this,'ib',${i},'c')">$${fmt(p.c)}</span></td>
+      <td><span class="ec" title="Clic para editar precio" onclick="editCell(this,'ib',${i},'m')">$${fmt(p.m)}</span></td>
       <td class="td-val">$${fmt(mkt)}</td>
       <td class="${pygCls(ga)}">${pyg(ga)} $</td>
       <td><span class="${badgeCls(gp)}">${pct(gp)}</span></td>
@@ -638,6 +644,28 @@ function renderChartPair(id,arr,mode){
   renderChartFromItems(id,items);
 }
 
+// ── EDICIÓN INLINE ────────────────────────────────────────────────────────────
+function editCell(el,broker,idx,field){
+  const arr=broker==='tr'?trP:ibP;
+  const p=arr[idx];
+  const oldVal=p[field];
+  const inp=document.createElement('input');
+  inp.type='number';inp.value=oldVal;
+  inp.step=field==='s'?'1':'0.01';inp.min='0';
+  inp.className='ec-inp';
+  el.replaceWith(inp);inp.focus();inp.select();
+  function save(){
+    const v=parseFloat(inp.value);
+    if(!isNaN(v)&&v>=0){p[field]=v;saveLS();}
+    renderAll();
+  }
+  inp.addEventListener('blur',save);
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();save();}
+    if(e.key==='Escape'){p[field]=oldVal;renderAll();}
+  });
+}
+
 // ── DELETE STOCK ──────────────────────────────────────────────────────────────
 function deleteStock(ds,idx){
   const arr=ds==='tr'?trP:ibP;
@@ -683,41 +711,113 @@ document.getElementById('m-ticker').addEventListener('input',function(){
 });
 
 // ── FETCH PRECIOS ─────────────────────────────────────────────────────────────
-function getSYMS(){return[...trP.map(p=>p.yahoo),...ibP.map(p=>p.yahoo),'EURUSD=X'].join(',');}
-
-function fetchTimeout(url,ms=9000){
+function fetchTimeout(url,ms=8000){
   return new Promise((res,rej)=>{
     const t=setTimeout(()=>rej(new Error('timeout')),ms);
     fetch(url).then(r=>{clearTimeout(t);res(r);}).catch(e=>{clearTimeout(t);rej(e);});
   });
 }
-function parseQuotes(data){
-  try{
-    if(data?.quoteResponse?.result?.length)return data.quoteResponse.result;
-    if(data?.contents){const inner=JSON.parse(data.contents);if(inner?.quoteResponse?.result?.length)return inner.quoteResponse.result;}
-    if(data?.body){const b=typeof data.body==='string'?JSON.parse(data.body):data.body;if(b?.quoteResponse?.result?.length)return b.quoteResponse.result;}
-  }catch(e){}
+
+// EUR/USD desde API dedicada con CORS real — sin Yahoo, sin proxy
+async function fetchEURUSD(){
+  const apis=['https://open.er-api.com/v6/latest/USD','https://api.exchangerate-api.com/v4/latest/USD'];
+  for(const url of apis){
+    try{
+      const r=await fetchTimeout(url,5000);if(!r.ok)continue;
+      const d=await r.json();
+      const eur=d?.rates?.EUR??d?.conversion_rates?.EUR;
+      if(eur>0)return eur;
+    }catch{continue;}
+  }
   return null;
 }
-async function tryFetch(){
-  const syms=getSYMS();
-  const base1=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&lang=en-US&region=US`;
-  const base2=`https://query2.finance.yahoo.com/v8/finance/quote?symbols=${syms}&lang=en-US&region=US`;
-  const attempts=[
-    ()=>fetchTimeout(`https://corsproxy.io/?url=${encodeURIComponent(base1)}`),
-    ()=>fetchTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(base1)}`),
-    ()=>fetchTimeout(`https://corsproxy.io/?url=${encodeURIComponent(base2)}`),
-    ()=>fetchTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(base2)}`),
-    ()=>fetchTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(base1)}`),
-    ()=>fetchTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(base2)}`),
-  ];
-  for(const attempt of attempts){
+
+// Stooq: servicio gratuito, sin registro, API diferente a Yahoo
+function toStooqSym(yahoo){
+  if(yahoo==='EURUSD=X')return'eurusd';
+  if(yahoo.endsWith('.PA'))return yahoo.replace('.PA','').toLowerCase()+'.fr';
+  if(yahoo.endsWith('.L'))return yahoo.replace('.L','').toLowerCase()+'.uk';
+  if(yahoo.endsWith('.DE'))return yahoo.replace('.DE','').toLowerCase()+'.de';
+  return yahoo.toLowerCase()+'.us';
+}
+async function fetchFromStooq(yahoo){
+  const sym=toStooqSym(yahoo);
+  const url=`https://stooq.com/q/l/?s=${sym}&f=sd2t2ohlcv&h&e=json`;
+  const pxs=['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url=','https://api.allorigins.win/get?url='];
+  for(const px of pxs){
     try{
-      const res=await attempt();if(!res.ok)continue;
-      const data=await res.json();
-      const quotes=parseQuotes(data);
-      if(quotes?.length)return quotes;
-    }catch(e){continue;}
+      const r=await fetchTimeout(px+encodeURIComponent(url),8000);if(!r.ok)continue;
+      let d=await r.json();
+      if(d?.contents){try{d=JSON.parse(d.contents);}catch{}}
+      const c=d?.symbols?.[0]?.c;
+      if(c>0)return c;
+    }catch{continue;}
+  }
+  return null;
+}
+
+// Scraping página Yahoo (último recurso — extrae el precio del HTML)
+async function fetchFromYahooPage(yahoo){
+  const url=`https://finance.yahoo.com/quote/${yahoo}/`;
+  const px='https://api.allorigins.win/get?url=';
+  try{
+    const r=await fetchTimeout(px+encodeURIComponent(url),12000);if(!r.ok)return null;
+    const d=await r.json();
+    const html=d?.contents||'';
+    const m=html.match(/"regularMarketPrice":\{"raw":([\d.]+)/);
+    if(m)return parseFloat(m[1]);
+    const m2=html.match(/data-field="regularMarketPrice"[^>]+value="([\d.]+)"/);
+    if(m2)return parseFloat(m2[1]);
+  }catch{}
+  return null;
+}
+
+// Precio individual: 3 fuentes en cascada
+async function fetchOnePrice(yahoo){
+  // Fuente 1: Yahoo chart endpoint
+  const eps=[
+    `https://query1.finance.yahoo.com/v8/finance/chart/${yahoo}?interval=1d&range=1d`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${yahoo}?interval=1d&range=1d`,
+  ];
+  const pxs=['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url=','https://api.allorigins.win/get?url='];
+  for(const ep of eps){
+    for(const px of pxs){
+      try{
+        const r=await fetchTimeout(px+encodeURIComponent(ep),7000);if(!r.ok)continue;
+        let d=await r.json();
+        if(d?.contents){try{d=JSON.parse(d.contents);}catch{}}
+        const price=d?.chart?.result?.[0]?.meta?.regularMarketPrice;
+        if(price>0)return price;
+      }catch{continue;}
+    }
+  }
+  // Fuente 2: Stooq
+  const sp=await fetchFromStooq(yahoo);
+  if(sp>0)return sp;
+  // Fuente 3: scraping página Yahoo
+  const pp=await fetchFromYahooPage(yahoo);
+  if(pp>0)return pp;
+  return null;
+}
+
+// Intento batch (rápido si funciona)
+async function tryBatchFetch(){
+  const syms=[...trP.map(p=>p.yahoo),...ibP.map(p=>p.yahoo)].join(',');
+  const bases=[
+    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&lang=en-US&region=US`,
+    `https://query2.finance.yahoo.com/v8/finance/quote?symbols=${syms}&lang=en-US&region=US`,
+  ];
+  for(const base of bases){
+    for(const px of ['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url=','https://api.allorigins.win/get?url=']){
+      try{
+        const r=await fetchTimeout(px+encodeURIComponent(base),8000);if(!r.ok)continue;
+        let d=await r.json();
+        if(d?.contents){try{d=JSON.parse(d.contents);}catch{}}
+        if(d?.body&&typeof d.body==='string'){try{d=JSON.parse(d.body);}catch{}}
+        const q=d?.quoteResponse?.result;
+        if(q?.length>0)return q;
+      }catch{continue;}
+    }
   }
   return null;
 }
@@ -731,22 +831,44 @@ function setStatus(ok,msg){
 async function fetchPrices(){
   setStatus(null,'Actualizando precios…');
   document.getElementById('fetch-icon').innerHTML='<span class="spin"></span>';
+  let n=0;
   try{
-    const quotes=await tryFetch();
-    if(!quotes)throw new Error();
-    const pm={};quotes.forEach(q=>{pm[q.symbol]={price:q.regularMarketPrice};});
-    const eurusd=pm['EURUSD=X']?.price;
-    if(eurusd>0)EUR_USD=1/eurusd;
-    let n=0;
-    trP.forEach(p=>{const q=pm[p.yahoo];if(q?.price>0){p.m=p.cur==='USD'?q.price*EUR_USD:q.price;n++;}});
-    ibP.forEach(p=>{const q=pm[p.yahoo];if(q?.price>0){p.m=q.price;n++;}});
+    // 1. EUR/USD desde fuente fiable con CORS real
+    const eurusd=await fetchEURUSD();
+    if(eurusd>0)EUR_USD=eurusd;
+
+    // 2. Intento batch (rápido)
+    const batch=await tryBatchFetch();
+    if(batch){
+      const pm={};batch.forEach(q=>{pm[q.symbol]=q.regularMarketPrice;});
+      trP.forEach(p=>{if(pm[p.yahoo]>0){p.m=p.cur==='USD'?pm[p.yahoo]*EUR_USD:pm[p.yahoo];n++;}});
+      ibP.forEach(p=>{if(pm[p.yahoo]>0){p.m=pm[p.yahoo];n++;}});
+    }
+
+    // 3. Si batch falló, intentar símbolo a símbolo en paralelo
+    if(n===0){
+      const all=[...trP,...ibP];
+      const res=await Promise.allSettled(all.map(p=>fetchOnePrice(p.yahoo)));
+      res.forEach((r,i)=>{
+        if(r.status==='fulfilled'&&r.value>0){
+          const p=all[i];p.m=p.cur==='USD'?r.value*EUR_USD:r.value;n++;
+        }
+      });
+    }
+
     renderAll();
-    const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-    setStatus(true,'✓ '+ts+' · '+n+' actualizados');
-    toast('↻ '+n+' precios actualizados');
+    if(n>0){
+      const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+      setStatus(true,'✓ '+ts+' · '+n+' actualizados');
+      toast('↻ '+n+' precios actualizados');
+    }else{
+      setStatus(false,'Sin conexión · haz clic en las celdas para editar');
+      toast('⚠ Sin precios · edita haciendo clic en la celda');
+    }
   }catch(e){
-    setStatus(false,'Sin conexión · precios estimados');
-    toast('⚠ Sin conexión');
+    renderAll();
+    setStatus(false,'Sin conexión · edita haciendo clic en las celdas');
+    toast('⚠ Sin conexión · edita manualmente');
   }
   document.getElementById('fetch-icon').textContent='↻';
 }
