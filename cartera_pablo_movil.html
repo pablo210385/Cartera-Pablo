@@ -589,12 +589,17 @@ const miF = [
   {t:'GRPTR', n:'Groupama Trésorerie',       tipo:'Liquidez',      np:0, pm:0, vp:0, aprtc:0},
 ];
 
+const BC_POOL_M=['#38bdf8','#4ade80','#f87171','#fbbf24','#a78bfa','#fb923c','#e879f9','#f59e0b','#94a3b8'];
+let bcIdxM=0;function nextColorM(){return BC_POOL_M[bcIdxM++%BC_POOL_M.length];}
+
 function loadLS() { try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}');}catch(e){return {};} }
 function saveLS() {
-  const out={};
-  trP.forEach(p=>{out['tr_'+p.t]={s:p.s,c:p.c};});
-  ibP.forEach(p=>{out['ib_'+p.t]={s:p.s,c:p.c};});
+  const out=loadLS();
+  trP.forEach(p=>{out['tr_'+p.t]={s:p.s,c:p.c,n:p.n,yahoo:p.yahoo,cur:p.cur,bc:p.bc};});
+  ibP.forEach(p=>{out['ib_'+p.t]={s:p.s,c:p.c,n:p.n,yahoo:p.yahoo,cur:p.cur,bc:p.bc};});
   miF.forEach(p=>{out['mi_'+p.t]={np:p.np,pm:p.pm,vp:p.vp};});
+  out['_tr_added']=trP.filter(p=>!trDefault.find(d=>d.t===p.t)).map(p=>p.t);
+  out['_ib_added']=ibP.filter(p=>!ibDefault.find(d=>d.t===p.t)).map(p=>p.t);
   try{localStorage.setItem(LS_KEY,JSON.stringify(out));}catch(e){}
 }
 function applyLS(arr,prefix) {
@@ -608,10 +613,27 @@ function applyLS(arr,prefix) {
     }
   });
 }
+function loadCustomStocks(){
+  const sv=loadLS();
+  // Carga acciones añadidas desde desktop u otra sesión
+  (sv['_tr_added']||[]).forEach(t=>{
+    if(trP.find(p=>p.t===t))return;
+    const d=sv['tr_'+t]; if(!d)return;
+    trP.push({t,n:d.n||t,yahoo:d.yahoo||t,cur:d.cur||'USD',s:d.s||0,c:d.c||0,m:d.c||0,bc:d.bc||nextColorM()});
+    if(d.sector||d.pais)META[t]={s:d.sector||'Otro',p:d.pais||'Otro'};
+  });
+  (sv['_ib_added']||[]).forEach(t=>{
+    if(ibP.find(p=>p.t===t))return;
+    const d=sv['ib_'+t]; if(!d)return;
+    ibP.push({t,n:d.n||t,yahoo:d.yahoo||t,cur:d.cur||'USD',s:d.s||0,c:d.c||0,m:d.c||0,bc:d.bc||nextColorM()});
+    if(d.sector||d.pais)META[t]={s:d.sector||'Otro',p:d.pais||'Otro'};
+  });
+}
 
 const trP = trDefault.map(d=>({...d}));
 const ibP = ibDefault.map(d=>({...d}));
 applyLS(trP,'tr_'); applyLS(ibP,'ib_'); applyLS(miF,'mi_');
+loadCustomStocks();
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 const SCREENS = ['tr','mi','ibkr','global'];

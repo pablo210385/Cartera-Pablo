@@ -1,0 +1,12 @@
+{
+  "name": "Cartera PC · Pablo García",
+  "short_name": "Cartera PC",
+  "start_url": "./cartera_pablo_desktop.html",
+  "display": "standalone",
+  "background_color": "#06080f",
+  "theme_color": "#06080f",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
