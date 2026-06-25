@@ -781,8 +781,39 @@ function saveSheet(){
 
 // ── FETCH PRECIOS ─────────────────────────────────────────────────────────────
 const SYMS=[...trP.map(p=>p.yahoo),...ibP.map(p=>p.yahoo),'EURUSD=X'].join(',');
-const PROXY='https://corsproxy.io/?url=';
 const YURL=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
+const YURL2=`https://query2.finance.yahoo.com/v8/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
+const PROXIES=[
+  u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+];
+
+async function tryFetch(url){
+  for(const px of PROXIES){
+    try{
+      const res=await fetch(px(url),{signal:AbortSignal.timeout(8000)});
+      if(!res.ok)continue;
+      const data=await res.json();
+      const quotes=data?.quoteResponse?.result
+        ||data?.body?.quoteResponse?.result
+        ||(typeof data==='string'?JSON.parse(data)?.quoteResponse?.result:null);
+      if(quotes?.length)return quotes;
+    }catch(e){continue;}
+  }
+  // intento con URL alternativa de Yahoo
+  for(const px of PROXIES){
+    try{
+      const res=await fetch(px(YURL2),{signal:AbortSignal.timeout(8000)});
+      if(!res.ok)continue;
+      const data=await res.json();
+      const quotes=data?.quoteResponse?.result
+        ||data?.body?.quoteResponse?.result;
+      if(quotes?.length)return quotes;
+    }catch(e){continue;}
+  }
+  return null;
+}
 
 function setStatus(ok){
   ['tr','ibkr'].forEach(id=>{
@@ -814,11 +845,8 @@ async function fetchPrices(){
   setStatus(null);
   document.getElementById('fetch-icon').innerHTML='<span class="spin"></span>';
   try{
-    const res=await fetch(PROXY+encodeURIComponent(YURL));
-    if(!res.ok)throw new Error();
-    const data=await res.json();
-    const quotes=data?.quoteResponse?.result||data?.body?.quoteResponse?.result;
-    if(!quotes?.length)throw new Error();
+    const quotes=await tryFetch(YURL);
+    if(!quotes)throw new Error();
     const pm={};quotes.forEach(q=>{pm[q.symbol]={price:q.regularMarketPrice};});
     const eurusd=pm['EURUSD=X']?.price;
     if(eurusd>0)EUR_USD=1/eurusd;
