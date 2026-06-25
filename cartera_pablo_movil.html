@@ -781,35 +781,53 @@ function saveSheet(){
 
 // ── FETCH PRECIOS ─────────────────────────────────────────────────────────────
 const SYMS=[...trP.map(p=>p.yahoo),...ibP.map(p=>p.yahoo),'EURUSD=X'].join(',');
-const YURL=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
-const YURL2=`https://query2.finance.yahoo.com/v8/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
-const PROXIES=[
-  u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-];
 
-async function tryFetch(url){
-  for(const px of PROXIES){
+// Extrae quotes de cualquier formato de respuesta
+function parseQuotes(data){
+  try{
+    // directo
+    if(data?.quoteResponse?.result?.length) return data.quoteResponse.result;
+    // allorigins.win /get envuelve en {contents:"..."}
+    if(data?.contents){
+      const inner=JSON.parse(data.contents);
+      if(inner?.quoteResponse?.result?.length) return inner.quoteResponse.result;
+    }
+    // body wrapper
+    if(data?.body){
+      const b=typeof data.body==='string'?JSON.parse(data.body):data.body;
+      if(b?.quoteResponse?.result?.length) return b.quoteResponse.result;
+    }
+  }catch(e){}
+  return null;
+}
+
+// Timeout compatible con todos los móviles
+function fetchTimeout(url, ms=9000){
+  return new Promise((res,rej)=>{
+    const t=setTimeout(()=>rej(new Error('timeout')),ms);
+    fetch(url).then(r=>{clearTimeout(t);res(r);}).catch(e=>{clearTimeout(t);rej(e);});
+  });
+}
+
+// Intentos en orden: 4 estrategias distintas
+async function tryFetch(){
+  const base1=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
+  const base2=`https://query2.finance.yahoo.com/v8/finance/quote?symbols=${SYMS}&lang=en-US&region=US`;
+  const attempts=[
+    ()=>fetchTimeout(`https://corsproxy.io/?url=${encodeURIComponent(base1)}`),
+    ()=>fetchTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(base1)}`),
+    ()=>fetchTimeout(`https://corsproxy.io/?url=${encodeURIComponent(base2)}`),
+    ()=>fetchTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(base2)}`),
+    ()=>fetchTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(base1)}`),
+    ()=>fetchTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(base2)}`),
+  ];
+  for(const attempt of attempts){
     try{
-      const res=await fetch(px(url),{signal:AbortSignal.timeout(8000)});
-      if(!res.ok)continue;
+      const res=await attempt();
+      if(!res.ok) continue;
       const data=await res.json();
-      const quotes=data?.quoteResponse?.result
-        ||data?.body?.quoteResponse?.result
-        ||(typeof data==='string'?JSON.parse(data)?.quoteResponse?.result:null);
-      if(quotes?.length)return quotes;
-    }catch(e){continue;}
-  }
-  // intento con URL alternativa de Yahoo
-  for(const px of PROXIES){
-    try{
-      const res=await fetch(px(YURL2),{signal:AbortSignal.timeout(8000)});
-      if(!res.ok)continue;
-      const data=await res.json();
-      const quotes=data?.quoteResponse?.result
-        ||data?.body?.quoteResponse?.result;
-      if(quotes?.length)return quotes;
+      const quotes=parseQuotes(data);
+      if(quotes?.length) return quotes;
     }catch(e){continue;}
   }
   return null;
@@ -845,7 +863,7 @@ async function fetchPrices(){
   setStatus(null);
   document.getElementById('fetch-icon').innerHTML='<span class="spin"></span>';
   try{
-    const quotes=await tryFetch(YURL);
+    const quotes=await tryFetch();
     if(!quotes)throw new Error();
     const pm={};quotes.forEach(q=>{pm[q.symbol]={price:q.regularMarketPrice};});
     const eurusd=pm['EURUSD=X']?.price;
