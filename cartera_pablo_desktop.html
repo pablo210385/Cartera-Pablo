@@ -485,7 +485,6 @@ function applyLS(){
 const trP=trDefault.map(d=>({...d}));
 const ibP=ibDefault.map(d=>({...d}));
 applyLS();
-loadEfectivoD();
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function showSection(id){
@@ -1060,6 +1059,7 @@ if('serviceWorker' in navigator){
 }
 
 function renderAll(){renderTR();renderMI();renderIBKR();renderGlobal();}
+loadEfectivoD();
 renderAll();
 updateAPIBtn();
 setTimeout(fetchPrices,600);
