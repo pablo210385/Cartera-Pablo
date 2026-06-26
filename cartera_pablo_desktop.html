@@ -6,11 +6,11 @@
 <title>Cartera · Pablo García</title>
 <link rel="manifest" href="manifest-pc.json">
 <meta name="theme-color" content="#06080f">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#06080f;--surface:#0d1117;--surface2:#131920;--border:rgba(255,255,255,0.06);--text:#e8edf5;--muted:#4a5568;--dim:#2d3748;--pu:#a78bfa;--pu2:rgba(167,139,250,0.12);--cy:#38bdf8;--cy2:rgba(56,189,248,0.1);--gr:#4ade80;--rd:#f87171;--am:#fbbf24}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;display:flex;height:100vh;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;height:100vh;overflow:hidden}
 
 /* ── SIDEBAR ── */
 .sidebar{width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:18px 14px;gap:6px;overflow-y:auto}
@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;displa
 .brand-name{font-size:13px;font-weight:800}
 .brand-sub{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-top:1px}
 .snav{display:flex;flex-direction:column;gap:3px}
-.snav-btn{width:100%;text-align:left;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;display:flex;align-items:center;gap:8px}
+.snav-btn{width:100%;text-align:left;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;display:flex;align-items:center;gap:8px}
 .snav-btn:hover{background:rgba(255,255,255,0.04);color:var(--text)}
 .snav-btn.active{background:var(--pu2);color:var(--pu)}
 .snav-ico{font-size:14px;width:18px;text-align:center}
@@ -27,7 +27,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;displa
 .ss-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
 .ss-val{font-size:20px;font-weight:800}
 .ss-pyg{font-family:'DM Mono',monospace;font-size:10px;margin-top:2px}
-.sb-refresh{width:100%;padding:9px;border-radius:9px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;margin-top:8px}
+.sb-refresh{width:100%;padding:9px;border-radius:9px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;margin-top:8px}
 .sb-refresh:hover{background:rgba(255,255,255,0.07);color:var(--text)}
 .sb-status{display:flex;align-items:center;gap:6px;padding:6px 2px}
 .status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
@@ -60,7 +60,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;displa
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
 .table-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)}
 .table-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
-.add-btn{display:flex;align-items:center;gap:5px;padding:5px 13px;border-radius:100px;background:var(--pu2);border:1px solid rgba(167,139,250,0.25);color:var(--pu);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s}
+.add-btn{display:flex;align-items:center;gap:5px;padding:5px 13px;border-radius:100px;background:var(--pu2);border:1px solid rgba(167,139,250,0.25);color:var(--pu);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s}
 .add-btn:hover{background:rgba(167,139,250,0.2)}
 table{width:100%;border-collapse:collapse}
 thead th{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:9px 14px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -111,7 +111,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 
 /* ── SYNC ── */
 .sync-row{display:flex;gap:8px;margin-bottom:20px}
-.sync-btn-pc{padding:8px 16px;border-radius:100px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;transition:opacity 0.15s}
+.sync-btn-pc{padding:8px 16px;border-radius:100px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;transition:opacity 0.15s}
 .sync-btn-pc:hover{opacity:0.8}
 .exp-btn{background:var(--cy2);color:var(--cy);border-color:rgba(56,189,248,0.25)}
 .imp-btn{background:rgba(74,222,128,0.1);color:var(--gr);border-color:rgba(74,222,128,0.2)}
@@ -130,7 +130,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 .mf input:focus,.mf select:focus{border-color:var(--pu)}
 .mf select option{background:#0d1117}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end}
-.modal-btn{padding:9px 20px;border-radius:9px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none}
+.modal-btn{padding:9px 20px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none}
 .modal-btn-save{background:linear-gradient(135deg,var(--pu),var(--cy));color:#06080f}
 .modal-btn-cancel{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
 
@@ -138,6 +138,11 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 .ec{cursor:text;border-bottom:1px dashed var(--dim);transition:border-color 0.15s,color 0.15s;white-space:nowrap}
 .ec:hover{border-bottom-color:var(--pu);color:var(--pu)}
 .ec-inp{background:rgba(167,139,250,0.12);border:1px solid var(--pu);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:3px 7px;width:85px;text-align:right;outline:none}
+
+/* ── API KEY SETTINGS ── */
+.api-btn{width:100%;padding:8px;border-radius:9px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;margin-top:4px}
+.api-btn.ok{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.2);color:var(--gr)}
+.api-btn:hover{opacity:0.85}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:8px 16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);z-index:200;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap}
@@ -166,6 +171,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
     <div class="ss-pyg" id="sb-pyg">—</div>
   </div>
   <button class="sb-refresh" onclick="fetchPrices()"><span id="fetch-icon">↻</span> Actualizar precios</button>
+  <button class="api-btn" id="api-btn" onclick="openAPISettings()">⚙ Configurar API key</button>
   <div class="sb-status">
     <span class="status-dot" id="sd-pc"></span>
     <span class="sb-status-txt" id="ps-pc">Listo</span>
@@ -349,6 +355,24 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ API KEY MODAL ══ -->
+<div class="modal-overlay" id="api-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">🔑 API Key · Finnhub</div>
+    <div class="modal-sub">finnhub.io → Dashboard → copia tu API Key gratuita</div>
+    <div class="modal-fields" style="grid-template-columns:1fr">
+      <div class="mf full">
+        <label>API Key de Finnhub</label>
+        <input id="api-key-inp" placeholder="Pega aquí tu API key" style="font-size:11px">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeAPISettings()">Cancelar</button>
+      <button class="modal-btn modal-btn-save" onclick="saveAPIKey()">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ── DATOS ─────────────────────────────────────────────────────────────────────
@@ -710,6 +734,30 @@ document.getElementById('m-ticker').addEventListener('input',function(){
   if(!document.getElementById('m-yahoo').value) document.getElementById('m-yahoo').value=this.value.toUpperCase();
 });
 
+// ── API KEY SETTINGS ──────────────────────────────────────────────────────────
+let FHUB_KEY = localStorage.getItem('fhub_apikey') || '';
+function updateAPIBtn(){
+  const btn=document.getElementById('api-btn');
+  if(!btn)return;
+  btn.className='api-btn'+(FHUB_KEY?' ok':'');
+  btn.textContent=FHUB_KEY?'✓ API key configurada':'⚙ Configurar API key';
+}
+function openAPISettings(){
+  document.getElementById('api-key-inp').value=FHUB_KEY;
+  document.getElementById('api-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('api-key-inp').focus(),100);
+}
+function closeAPISettings(){document.getElementById('api-overlay').classList.remove('open');}
+function saveAPIKey(){
+  const k=document.getElementById('api-key-inp').value.trim();
+  FHUB_KEY=k;
+  if(k)localStorage.setItem('fhub_apikey',k);
+  else localStorage.removeItem('fhub_apikey');
+  updateAPIBtn();
+  closeAPISettings();
+  if(k){toast('✓ API key guardada · actualizando…');fetchPrices();}
+}
+
 // ── FETCH PRECIOS ─────────────────────────────────────────────────────────────
 function fetchTimeout(url,ms=8000){
   return new Promise((res,rej)=>{
@@ -822,6 +870,22 @@ async function tryBatchFetch(){
   return null;
 }
 
+// Finnhub — CORS nativo, peticiones en paralelo por símbolo
+async function fetchFromFinnhub(apiKey){
+  const all=[...trP,...ibP];
+  const results=await Promise.allSettled(
+    all.map(p=>
+      fetchTimeout(`https://finnhub.io/api/v1/quote?symbol=${p.yahoo}&token=${apiKey}`,8000)
+        .then(r=>r.ok?r.json():null)
+        .then(d=>({yahoo:p.yahoo,price:d?.c>0?d.c:null}))
+        .catch(()=>({yahoo:p.yahoo,price:null}))
+    )
+  );
+  const prices={};
+  results.forEach(r=>{if(r.status==='fulfilled'&&r.value?.price>0)prices[r.value.yahoo]=r.value.price;});
+  return Object.keys(prices).length>0?prices:null;
+}
+
 function setStatus(ok,msg){
   const sd=document.getElementById('sd-pc'),ps=document.getElementById('ps-pc');
   sd.className='status-dot '+(ok===null?'loading':ok?'ok':'err');
@@ -833,20 +897,31 @@ async function fetchPrices(){
   document.getElementById('fetch-icon').innerHTML='<span class="spin"></span>';
   let n=0;
   try{
-    // 1. EUR/USD desde fuente fiable con CORS real
+    // EUR/USD — fuente dedicada con CORS real (siempre funciona)
     const eurusd=await fetchEURUSD();
     if(eurusd>0)EUR_USD=eurusd;
 
-    // 2. Intento batch (rápido)
-    const batch=await tryBatchFetch();
-    if(batch){
-      const pm={};batch.forEach(q=>{pm[q.symbol]=q.regularMarketPrice;});
-      trP.forEach(p=>{if(pm[p.yahoo]>0){p.m=p.cur==='USD'?pm[p.yahoo]*EUR_USD:pm[p.yahoo];n++;}});
-      ibP.forEach(p=>{if(pm[p.yahoo]>0){p.m=pm[p.yahoo];n++;}});
+    if(FHUB_KEY){
+      // ── Twelve Data (API key configurada) — 100% fiable ──
+      const prices=await fetchFromFinnhub(FHUB_KEY);
+      if(prices){
+        trP.forEach(p=>{const v=prices[p.yahoo];if(v>0){p.m=p.cur==='USD'?v*EUR_USD:v;n++;}});
+        ibP.forEach(p=>{const v=prices[p.yahoo];if(v>0){p.m=v;n++;}});
+      }
     }
 
-    // 3. Si batch falló, intentar símbolo a símbolo en paralelo
     if(n===0){
+      // ── Fallback: batch Yahoo vía proxies ──
+      const batch=await tryBatchFetch();
+      if(batch){
+        const pm={};batch.forEach(q=>{pm[q.symbol]=q.regularMarketPrice;});
+        trP.forEach(p=>{if(pm[p.yahoo]>0){p.m=p.cur==='USD'?pm[p.yahoo]*EUR_USD:pm[p.yahoo];n++;}});
+        ibP.forEach(p=>{if(pm[p.yahoo]>0){p.m=pm[p.yahoo];n++;}});
+      }
+    }
+
+    if(n===0){
+      // ── Fallback: símbolo a símbolo (chart + stooq + scraping) ──
       const all=[...trP,...ibP];
       const res=await Promise.allSettled(all.map(p=>fetchOnePrice(p.yahoo)));
       res.forEach((r,i)=>{
@@ -859,16 +934,15 @@ async function fetchPrices(){
     renderAll();
     if(n>0){
       const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-      setStatus(true,'✓ '+ts+' · '+n+' actualizados');
+      setStatus(true,'✓ '+ts+' · '+n+' actualizados'+(FHUB_KEY?' (TD)':' (proxy)'));
       toast('↻ '+n+' precios actualizados');
     }else{
-      setStatus(false,'Sin conexión · haz clic en las celdas para editar');
-      toast('⚠ Sin precios · edita haciendo clic en la celda');
+      setStatus(false,'Sin precios · clic en celda para editar · o configura API key');
+      toast('⚠ Sin precios · usa ⚙ para configurar API key gratuita');
     }
   }catch(e){
     renderAll();
-    setStatus(false,'Sin conexión · edita haciendo clic en las celdas');
-    toast('⚠ Sin conexión · edita manualmente');
+    setStatus(false,'Error · clic en celda para editar');
   }
   document.getElementById('fetch-icon').textContent='↻';
 }
@@ -918,6 +992,7 @@ if('serviceWorker' in navigator){
 
 function renderAll(){renderTR();renderMI();renderIBKR();renderGlobal();}
 renderAll();
+updateAPIBtn();
 setTimeout(fetchPrices,600);
 </script>
 </body>
