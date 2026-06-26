@@ -301,6 +301,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 <div class="section" id="sec-global">
   <div class="eyebrow">Patrimonio total</div>
   <div class="pg-title">Vista <span>Global</span></div>
+  <div id="g-total-pc" style="font-size:36px;font-weight:800;font-family:'DM Mono',monospace;color:#f9fafb;margin:4px 0 20px;letter-spacing:-1px">— €</div>
   <div class="platform-grid" id="plat-grid"></div>
   <div class="charts-row">
     <div class="chart-card-pc"><div class="chart-ttl">Por plataforma</div><div class="chart-body-pc"><div class="chart-donut-pc" id="ch-g-plat"></div><div class="chart-legend-pc" id="leg-g-plat"></div></div></div>
@@ -600,59 +601,71 @@ function renderIBKR(){
   renderChartPair('ib-pos',ibP,'pos');renderChartPair('ib-sec',ibP,'sector');renderChartPair('ib-pai',ibP,'pais');
 }
 
-// ── EFECTIVO EDITABLE (DESKTOP) ───────────────────────────────────────────────
-const EF_DEFS_D={tr:{tae:2.25,label:'Efectivo · Trade Republic',col:'#fbbf24'},banco:{tae:2.5,label:'Efectivo · Banco/Cuenta',col:'#f59e0b'},ib:{tae:0,label:'Efectivo · IBKR',col:'#94a3b8'}};
-let gEfD={tr:0,banco:0,ib:0};
-function loadEfectivoD(){const sv=loadLS();['tr','banco','ib'].forEach(k=>{const v=sv['ef_'+k];if(v!=null)gEfD[k]=parseFloat(v)||0;});}
-function saveEfectivoD_ls(){const sv=loadLS();['tr','banco','ib'].forEach(k=>{sv['ef_'+k]=gEfD[k];});try{localStorage.setItem(LS_KEY,JSON.stringify(sv));}catch(e){}}
-let _efCtxD=null;
-function editEfectivoD(tipo){
-  _efCtxD=tipo;const d=EF_DEFS_D[tipo];
+// ── IMPORTES FIJOS EDITABLES (DESKTOP) ────────────────────────────────────────
+const FIXED_DEFS_D={
+  ef_tr:    {label:'Efectivo · Trade Republic', tae:2.25, col:'#fbbf24', lsKey:'ef_tr'},
+  ef_banco: {label:'Efectivo · Banco/Cuenta',   tae:2.5,  col:'#f59e0b', lsKey:'ef_banco'},
+  ef_ib:    {label:'Efectivo · IBKR',           tae:0,    col:'#94a3b8', lsKey:'ef_ib'},
+  pp:       {label:'Plan de Pensiones (MI)',     tae:0,    col:'#a78bfa', lsKey:'fx_pp'},
+  mintos:   {label:'Mintos · P2P Lending',      tae:0,    col:'#f87171', lsKey:'fx_mintos'},
+  inmo:     {label:'Inmobiliario (Urbanitae)',   tae:0,    col:'#fb923c', lsKey:'fx_inmo'},
+};
+let gFixedD={ef_tr:0,ef_banco:0,ef_ib:0,pp:0,mintos:0,inmo:0};
+function loadEfectivoD(){
+  const sv=loadLS();
+  Object.entries(FIXED_DEFS_D).forEach(([k,d])=>{const v=sv[d.lsKey];gFixedD[k]=v!=null?parseFloat(v)||0:0;});
+}
+function saveFixedD_ls(){
+  const sv=loadLS();
+  Object.entries(FIXED_DEFS_D).forEach(([k,d])=>{sv[d.lsKey]=gFixedD[k];});
+  try{localStorage.setItem(LS_KEY,JSON.stringify(sv));}catch(e){}
+}
+let _fixedCtxD=null;
+function editEfectivoD(key){
+  _fixedCtxD=key;const d=FIXED_DEFS_D[key];
   document.getElementById('ef-modal-title').textContent=d.label;
-  document.getElementById('ef-modal-sub').textContent=d.tae>0?d.tae.toFixed(2)+'% TAE · introduce el saldo actual':'Sin rentabilidad · introduce el saldo actual';
-  document.getElementById('ef-modal-inp').value=gEfD[tipo]||'';
+  document.getElementById('ef-modal-sub').textContent=d.tae>0?d.tae.toFixed(2)+'% TAE · introduce el saldo actual':'Introduce el saldo o valor actual';
+  document.getElementById('ef-modal-inp').value=gFixedD[key]||'';
   document.getElementById('ef-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('ef-modal-inp').focus(),100);
 }
-function closeEfectivoD(){document.getElementById('ef-overlay').classList.remove('open');_efCtxD=null;}
+function closeEfectivoD(){document.getElementById('ef-overlay').classList.remove('open');_fixedCtxD=null;}
 function saveEfectivoD(){
-  if(!_efCtxD)return;
+  if(!_fixedCtxD)return;
   const v=parseFloat(document.getElementById('ef-modal-inp').value)||0;
-  gEfD[_efCtxD]=v;saveEfectivoD_ls();closeEfectivoD();renderGlobal();toast('✓ Efectivo actualizado');
+  gFixedD[_fixedCtxD]=v;saveFixedD_ls();closeEfectivoD();renderGlobal();toast('✓ Guardado');
 }
 
 function renderGlobal(){
   const trMkt=trP.reduce((s,p)=>s+p.s*p.m,0);
   const ibMkt=ibP.reduce((s,p)=>s+p.s*p.m,0)*EUR_USD;
   const miMkt=miF.reduce((s,p)=>s+(p.np>0?p.np*p.vp:0),0);
-  const efTotal=gEfD.tr+gEfD.banco+gEfD.ib;
-  const G_INMO=1507,G_PP=1615;
-  const total=(miMkt||21480)+trMkt+ibMkt+efTotal+G_INMO+G_PP;
+  const efTotal=gFixedD.ef_tr+gFixedD.ef_banco+gFixedD.ef_ib;
+  const total=(miMkt||0)+trMkt+ibMkt+efTotal+gFixedD.inmo+gFixedD.pp+gFixedD.mintos;
 
-  // Cards fijos + acciones
-  const fixedPlats=[
-    {n:'Fondos MyInvestor',sub:'5 fondos RV global',v:miMkt||21480,c:'#34d399'},
-    {n:'Trade Republic',sub:trP.length+' acciones',v:+trMkt.toFixed(0),c:'#38bdf8'},
-    {n:'IBKR',sub:ibP.length+' acciones',v:+ibMkt.toFixed(0),c:'#94a3b8'},
+  // Actualiza total hero
+  const te=document.getElementById('g-total-pc');
+  if(te)te.textContent=total>0?fmt(total)+' €':'— €';
+
+  const allPlats=[
+    {n:'Fondos MyInvestor', sub:'5 fondos RV global',    v:miMkt||0,            c:'#34d399'},
+    {n:'Trade Republic',    sub:trP.length+' acciones',  v:+trMkt.toFixed(0),   c:'#38bdf8'},
+    {n:'IBKR',              sub:ibP.length+' acciones',  v:+ibMkt.toFixed(0),   c:'#94a3b8'},
+    {n:'Efectivo · TR',     sub:'2,25% TAE'+(gFixedD.ef_tr>0?' · +'+fmt(gFixedD.ef_tr*0.0225)+'€/año':''), v:gFixedD.ef_tr,    c:'#fbbf24', key:'ef_tr'},
+    {n:'Efectivo · Banco',  sub:'2,50% TAE'+(gFixedD.ef_banco>0?' · +'+fmt(gFixedD.ef_banco*0.025)+'€/año':''), v:gFixedD.ef_banco, c:'#f59e0b', key:'ef_banco'},
+    {n:'Efectivo · IBKR',   sub:'0% TAE',                v:gFixedD.ef_ib,       c:'#94a3b8', key:'ef_ib'},
+    {n:'Plan de Pensiones', sub:'MyInvestor · largo plazo', v:gFixedD.pp,        c:'#a78bfa', key:'pp'},
+    {n:'Mintos · P2P',      sub:'Préstamos diversificados', v:gFixedD.mintos,    c:'#f87171', key:'mintos'},
+    {n:'Inmobiliario',      sub:'Urbanitae',             v:gFixedD.inmo,         c:'#fb923c', key:'inmo'},
   ];
-  const efPlats=[
-    {n:'Efectivo · TR',sub:'2,25% TAE'+(gEfD.tr>0?' · +'+fmt(gEfD.tr*2.25/100)+'€/año':''),v:gEfD.tr,c:'#fbbf24',ef:'tr'},
-    {n:'Efectivo · Banco',sub:'2,50% TAE'+(gEfD.banco>0?' · +'+fmt(gEfD.banco*2.5/100)+'€/año':''),v:gEfD.banco,c:'#f59e0b',ef:'banco'},
-    {n:'Efectivo · IBKR',sub:'0% TAE',v:gEfD.ib,c:'#94a3b8',ef:'ib'},
-  ];
-  const fixedRest=[
-    {n:'Inmobiliario',sub:'Urbanitae',v:G_INMO,c:'#fb923c'},
-    {n:'Pensiones + P2P',sub:'PP MI · Mintos',v:G_PP,c:'#f87171'},
-  ];
-  const allPlats=[...fixedPlats,...efPlats,...fixedRest];
 
   const grid=document.getElementById('plat-grid');grid.innerHTML='';
   allPlats.forEach(p=>{
     const d=document.createElement('div');d.className='plat-card';
     const pctStr=total>0?((p.v/total)*100).toFixed(1)+'%':'—';
-    const editHint=p.ef?'<span style="font-size:10px;color:var(--muted);margin-left:4px">✎</span>':'';
+    const editHint=p.key?'<span style="font-size:10px;color:var(--muted);margin-left:4px">✎</span>':'';
     d.innerHTML=`<div class="plat-head"><span class="plat-dot" style="background:${p.c}"></span><span class="plat-name">${p.n}</span>${editHint}</div><div class="plat-val">${p.v>0?fmt(p.v)+' €':'<span style="color:var(--muted);font-size:12px">Clic para editar</span>'}</div><div class="plat-pct">${pctStr}&nbsp;·&nbsp;${p.sub}</div>`;
-    if(p.ef)d.style.cursor='pointer',d.onclick=()=>editEfectivoD(p.ef);
+    if(p.key){d.style.cursor='pointer';d.onclick=()=>editEfectivoD(p.key);}
     grid.appendChild(d);
   });
 
