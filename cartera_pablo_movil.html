@@ -447,7 +447,7 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
   <div class="hero-wrap animate">
     <div class="hero-card" style="background:linear-gradient(135deg,#0d1117,#111827)">
       <div class="hero-label">Patrimonio total estimado</div>
-      <div class="hero-value" style="background:linear-gradient(135deg,var(--pu),var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent">~44.365 €</div>
+      <div class="hero-value" id="g-total" style="background:linear-gradient(135deg,var(--pu),var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent">— €</div>
       <div class="hero-sub">Todas las plataformas · jun 2026</div>
       <div class="hero-stats">
         <div class="hero-stat"><div class="hs-val up">~35.000 €</div><div class="hs-lbl">Invertido</div></div>
@@ -459,24 +459,22 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
 
   <div class="sec-label">Por plataforma</div>
   <div class="platform-list animate">
-    <div class="platform-item"><div class="plat-dot" style="background:#34d399"></div><div class="plat-info"><div class="plat-name">Fondos MyInvestor</div><div class="plat-sub">5 fondos indexados · RV global</div></div><div class="plat-right"><div class="plat-val">21.480 €</div><div class="plat-pct up">↑ 11,11%</div></div></div>
-    <div class="platform-item"><div class="plat-dot" style="background:#818cf8"></div><div class="plat-info"><div class="plat-name">Dividendos Freedom24</div><div class="plat-sub">15 posiciones · portf. val.</div></div><div class="plat-right"><div class="plat-val">15.068 €</div><div class="plat-pct" style="color:var(--muted)">—</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#34d399"></div><div class="plat-info"><div class="plat-name">Fondos MyInvestor</div><div class="plat-sub">5 fondos indexados · RV global</div></div><div class="plat-right"><div class="plat-val" id="g-mi-val">— €</div><div class="plat-pct" id="g-mi-pct" style="color:#34d399">—</div></div></div>
     <div class="platform-item"><div class="plat-dot" style="background:#38bdf8"></div><div class="plat-info"><div class="plat-name">Trade Republic</div><div class="plat-sub" id="g-tr-sub">13 acciones</div></div><div class="plat-right"><div class="plat-val" id="g-tr-val">—</div><div class="plat-pct" id="g-tr-pct" style="color:#38bdf8">—</div></div></div>
     <div class="platform-item"><div class="plat-dot" style="background:#94a3b8"></div><div class="plat-info"><div class="plat-name">Interactive Brokers</div><div class="plat-sub">4 posiciones</div></div><div class="plat-right"><div class="plat-val" id="g-ib-val">—</div><div class="plat-pct" id="g-ib-pct" style="color:#94a3b8">—</div></div></div>
     <div class="platform-item"><div class="plat-dot" style="background:#fb923c"></div><div class="plat-info"><div class="plat-name">Inmobiliario (Urbanitae)</div><div class="plat-sub">3 proyectos</div></div><div class="plat-right"><div class="plat-val">1.507 €</div><div class="plat-pct" style="color:var(--muted)">3,4%</div></div></div>
-    <div class="platform-item"><div class="plat-dot" style="background:#fbbf24"></div><div class="plat-info"><div class="plat-name">Efectivo total</div><div class="plat-sub">MyInvestor + Freedom24</div></div><div class="plat-right"><div class="plat-val">3.253 €</div><div class="plat-pct" style="color:var(--muted)">7,3%</div></div></div>
+    <div class="platform-item"><div class="plat-dot" style="background:#fbbf24"></div><div class="plat-info"><div class="plat-name">Efectivo / Caja</div><div class="plat-sub">MyInvestor · cuentas</div></div><div class="plat-right"><div class="plat-val" id="g-ef-val">3.253 €</div><div class="plat-pct" id="g-ef-pct" style="color:var(--muted)">—</div></div></div>
     <div class="platform-item"><div class="plat-dot" style="background:#f87171"></div><div class="plat-info"><div class="plat-name">Pensiones + P2P (Mintos)</div><div class="plat-sub">PP MyInvestor · Mintos 761 €</div></div><div class="plat-right"><div class="plat-val">1.615 €</div><div class="plat-pct" style="color:var(--muted)">3,6%</div></div></div>
   </div>
 
   <div class="sec-label">Distribución</div>
   <div class="bar-card animate" id="bar-card">
-    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Fondos indexados</span><span class="bar-pct" style="color:#34d399">48,4%</span></div><div class="bar-track"><div class="bar-fill" style="width:48.4%;background:#34d399"></div></div></div>
-    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Freedom24</span><span class="bar-pct" style="color:#818cf8">34,0%</span></div><div class="bar-track"><div class="bar-fill" style="width:34%;background:#818cf8"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Fondos MI</span><span class="bar-pct" id="g-mi-bar-pct" style="color:#34d399">—</span></div><div class="bar-track"><div class="bar-fill" id="g-mi-bar" style="width:0%;background:#34d399"></div></div></div>
     <div class="bar-row"><div class="bar-meta"><span class="bar-name">Trade Republic</span><span class="bar-pct" id="g-tr-bar-pct" style="color:#38bdf8">—</span></div><div class="bar-track"><div class="bar-fill" id="g-tr-bar" style="width:0%;background:#38bdf8"></div></div></div>
-    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Efectivo</span><span class="bar-pct" style="color:#fbbf24">7,3%</span></div><div class="bar-track"><div class="bar-fill" style="width:7.3%;background:#fbbf24"></div></div></div>
     <div class="bar-row"><div class="bar-meta"><span class="bar-name">IBKR</span><span class="bar-pct" id="g-ib-bar-pct" style="color:#94a3b8">—</span></div><div class="bar-track"><div class="bar-fill" id="g-ib-bar" style="width:0%;background:#94a3b8"></div></div></div>
-    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Inmobiliario</span><span class="bar-pct" style="color:#fb923c">3,4%</span></div><div class="bar-track"><div class="bar-fill" style="width:3.4%;background:#fb923c"></div></div></div>
-    <div class="bar-row" style="margin-bottom:0"><div class="bar-meta"><span class="bar-name">Pensiones + P2P</span><span class="bar-pct" style="color:#f87171">3,6%</span></div><div class="bar-track"><div class="bar-fill" style="width:3.6%;background:#f87171"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Efectivo</span><span class="bar-pct" id="g-ef-bar-pct" style="color:#fbbf24">—</span></div><div class="bar-track"><div class="bar-fill" id="g-ef-bar" style="width:0%;background:#fbbf24"></div></div></div>
+    <div class="bar-row"><div class="bar-meta"><span class="bar-name">Inmobiliario</span><span class="bar-pct" style="color:#fb923c">—</span></div><div class="bar-track"><div class="bar-fill" id="g-inm-bar" style="width:0%;background:#fb923c"></div></div></div>
+    <div class="bar-row" style="margin-bottom:0"><div class="bar-meta"><span class="bar-name">Pensiones + P2P</span><span class="bar-pct" style="color:#f87171">—</span></div><div class="bar-track"><div class="bar-fill" id="g-pp-bar" style="width:0%;background:#f87171"></div></div></div>
   </div>
 
   <div class="sec-label">Distribución visual</div>
@@ -488,7 +486,7 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
   <div class="chart-card animate" id="chart-global"></div>
 
   <div class="sec-label">Objetivos</div>
-  <div class="obj-card animate"><div class="obj-row"><div><div class="obj-name">Capital 100.000 €</div><div class="obj-sub">Horizonte 2031 · actual ~44.365 €</div></div><div class="obj-pct">44%</div></div><div class="obj-track"><div class="obj-fill" style="width:44.4%"></div></div></div>
+  <div class="obj-card animate"><div class="obj-row"><div><div class="obj-name">Capital 100.000 €</div><div class="obj-sub" id="g-obj-100k-sub">Horizonte 2031</div></div><div class="obj-pct" id="g-obj-100k-pct">—</div></div><div class="obj-track"><div class="obj-fill" id="g-obj-100k-fill" style="width:0%"></div></div></div>
   <div style="height:8px"></div>
   <div class="obj-card animate"><div class="obj-row"><div><div class="obj-name">1.000 €/mes pasivos</div><div class="obj-sub">Horizonte 2029 · est. ~200 €/mes</div></div><div class="obj-pct" style="color:var(--rd)">20%</div></div><div class="obj-track"><div class="obj-fill" style="width:20%;background:linear-gradient(90deg,var(--rd),var(--am))"></div></div></div>
   <div style="height:8px"></div>
@@ -713,12 +711,9 @@ function renderTR(){
   document.getElementById('tr-h-cost').textContent=fmt(tc)+' €';
   const pe=document.getElementById('tr-h-pyg');pe.textContent=pyg(g)+' €';pe.className='hs-val '+pygCls(g);
   const pp=document.getElementById('tr-h-pct');pp.textContent=pct(gp);pp.className='hs-val '+pygCls(gp);
+  gTrMkt=tm;
   document.getElementById('g-tr-val').textContent=fmt(tm)+' €';
-  document.getElementById('g-tr-sub').textContent='13 acc · PyG '+pyg(g)+' €';
-  const p2=+(tm/44365*100).toFixed(1);
-  document.getElementById('g-tr-pct').textContent='~'+p2+'%';
-  document.getElementById('g-tr-bar-pct').textContent='~'+p2+'%';
-  document.getElementById('g-tr-bar').style.width=Math.min(p2,100)+'%';
+  document.getElementById('g-tr-sub').textContent=trP.length+' acc · PyG '+pyg(g)+' €';
 }
 
 // ── RENDER MI ─────────────────────────────────────────────────────────────────
@@ -759,6 +754,7 @@ function renderMI(){
     list.appendChild(el);
   });
   const g=tm-tc,gp=tc>0?(g/tc)*100:0;
+  gMiMkt=tm;
   document.getElementById('mi-hero').textContent=tm>0?fmt(tm)+' €':'Añade tus datos';
   document.getElementById('mi-h-cost').textContent=tc>0?fmt(tc)+' €':'—';
   const pe=document.getElementById('mi-h-pyg');pe.textContent=tm>0?pyg(g)+' €':'—';pe.className='hs-val '+pygCls(g);
@@ -795,11 +791,8 @@ function renderIBKR(){
   const pe=document.getElementById('ibkr-h-pyg');pe.textContent=pyg(g)+' $';pe.className='hs-val '+pygCls(g);
   const pp=document.getElementById('ibkr-h-pct');pp.textContent=pct(gp);pp.className='hs-val '+pygCls(gp);
   const tmE=tm*EUR_USD;
+  gIbMktE=tmE;
   document.getElementById('g-ib-val').textContent=fmt(tmE)+' €';
-  const ip=+(tmE/44365*100).toFixed(1);
-  document.getElementById('g-ib-pct').textContent='~'+ip+'%';
-  document.getElementById('g-ib-bar-pct').textContent='~'+ip+'%';
-  document.getElementById('g-ib-bar').style.width=Math.min(ip,100)+'%';
 }
 
 // ── METADATA SECTORES / PAÍSES ────────────────────────────────────────────────
@@ -918,14 +911,13 @@ function renderCharts(){
     const trMkt=trP.reduce((s,p)=>s+p.s*p.m,0);
     const ibMkt=ibP.reduce((s,p)=>s+p.s*p.m,0)*EUR_USD;
     const platItems=[
-      {l:'Fondos MI',  v:21480, c:'#34d399'},
-      {l:'Freedom24',  v:15068, c:'#818cf8'},
-      {l:'Trade Rep.', v:trMkt, c:'#38bdf8'},
-      {l:'IBKR',       v:ibMkt, c:'#94a3b8'},
-      {l:'Efectivo',   v:3253,  c:'#fbbf24'},
-      {l:'Inmobil.',   v:1507,  c:'#fb923c'},
-      {l:'PP + P2P',   v:1615,  c:'#f87171'},
-    ];
+      {l:'Fondos MI',  v:gMiMkt||0,  c:'#34d399'},
+      {l:'Trade Rep.', v:trMkt,       c:'#38bdf8'},
+      {l:'IBKR',       v:ibMkt,       c:'#94a3b8'},
+      {l:'Efectivo',   v:G_EFECTIVO,  c:'#fbbf24'},
+      {l:'Inmobil.',   v:G_INMO,      c:'#fb923c'},
+      {l:'PP + P2P',   v:G_PP,        c:'#f87171'},
+    ].filter(x=>x.v>0);
     renderChart('chart-global', platItems, 'Por plataforma · patrimonio total');
   } else {
     const all=[...trP,...ibP];
@@ -935,7 +927,49 @@ function renderCharts(){
   }
 }
 
-function renderAll(){renderTR();renderMI();renderIBKR();renderCharts();}
+// ── RENDER GLOBAL ─────────────────────────────────────────────────────────────
+// Valores calculados por cada renderX() y usados aquí
+let gMiMkt=0, gTrMkt=0, gIbMktE=0;
+const G_EFECTIVO=3253, G_INMO=1507, G_PP=1615;
+
+function renderGlobal(){
+  const total=gMiMkt+gTrMkt+gIbMktE+G_EFECTIVO+G_INMO+G_PP;
+  if(total<=0)return;
+  const pct2=v=>+(v/total*100).toFixed(1);
+  const fmtP=v=>v.toFixed(1)+'%';
+  // Hero total
+  const el=document.getElementById('g-total');
+  if(el)el.textContent=fmt(total)+' €';
+  // Platform items pct
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent='~'+fmtP(pct2(v));};
+  set('g-mi-pct',gMiMkt);
+  if(gMiMkt>0){const e=document.getElementById('g-mi-val');if(e)e.textContent=fmt(gMiMkt)+' €';}
+  set('g-ef-pct',G_EFECTIVO);
+  // Barras
+  const bar=(idPct,idFill,v)=>{
+    const p=pct2(v);
+    const ep=document.getElementById(idPct);if(ep)ep.textContent='~'+fmtP(p);
+    const ef=document.getElementById(idFill);if(ef)ef.style.width=Math.min(p,100)+'%';
+  };
+  bar('g-mi-bar-pct','g-mi-bar',gMiMkt);
+  bar('g-tr-bar-pct','g-tr-bar',gTrMkt);
+  bar('g-ib-bar-pct','g-ib-bar',gIbMktE);
+  bar('g-ef-bar-pct','g-ef-bar',G_EFECTIVO);
+  bar(null,'g-inm-bar',G_INMO);
+  bar(null,'g-pp-bar',G_PP);
+  // TR y IB pct en platform-list (actualizados con total real)
+  const trP2=pct2(gTrMkt);
+  const ep2=document.getElementById('g-tr-pct');if(ep2)ep2.textContent='~'+fmtP(trP2);
+  const ibP2=pct2(gIbMktE);
+  const ep3=document.getElementById('g-ib-pct');if(ep3)ep3.textContent='~'+fmtP(ibP2);
+  // Objetivo 100k
+  const p100=Math.min(+(total/1000).toFixed(1),100);
+  const os=document.getElementById('g-obj-100k-sub');if(os)os.textContent='Horizonte 2031 · actual '+fmt(total)+' €';
+  const op=document.getElementById('g-obj-100k-pct');if(op)op.textContent=p100+'%';
+  const of=document.getElementById('g-obj-100k-fill');if(of)of.style.width=p100+'%';
+}
+
+function renderAll(){renderTR();renderMI();renderIBKR();renderGlobal();renderCharts();}
 
 // ── BOTTOM SHEET ──────────────────────────────────────────────────────────────
 let shCtx=null;
