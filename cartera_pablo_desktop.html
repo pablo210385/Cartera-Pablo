@@ -605,11 +605,10 @@ const FIXED_DEFS_D={
   ef_tr:    {label:'Efectivo · Trade Republic', tae:2.25, col:'#fbbf24', lsKey:'ef_tr'},
   ef_banco: {label:'Efectivo · Banco/Cuenta',   tae:2.5,  col:'#f59e0b', lsKey:'ef_banco'},
   ef_ib:    {label:'Efectivo · IBKR',           tae:0,    col:'#94a3b8', lsKey:'ef_ib'},
-  pp:       {label:'Plan de Pensiones (MI)',     tae:0,    col:'#a78bfa', lsKey:'fx_pp'},
   mintos:   {label:'Mintos · P2P Lending',      tae:0,    col:'#f87171', lsKey:'fx_mintos'},
   inmo:     {label:'Inmobiliario (Urbanitae)',   tae:0,    col:'#fb923c', lsKey:'fx_inmo'},
 };
-let gFixedD={ef_tr:0,ef_banco:0,ef_ib:0,pp:0,mintos:0,inmo:0};
+let gFixedD={ef_tr:0,ef_banco:0,ef_ib:0,mintos:0,inmo:0};
 function loadEfectivoD(){
   const sv=loadLS();
   Object.entries(FIXED_DEFS_D).forEach(([k,d])=>{const v=sv[d.lsKey];gFixedD[k]=v!=null?parseFloat(v)||0:0;});
@@ -640,7 +639,7 @@ function renderGlobal(){
   const ibMkt=ibP.reduce((s,p)=>s+p.s*p.m,0)*EUR_USD;
   const miMkt=miF.reduce((s,p)=>s+(p.np>0?p.np*p.vp:0),0);
   const efTotal=gFixedD.ef_tr+gFixedD.ef_banco+gFixedD.ef_ib;
-  const total=(miMkt||0)+trMkt+ibMkt+efTotal+gFixedD.inmo+gFixedD.pp+gFixedD.mintos;
+  const total=(miMkt||0)+trMkt+ibMkt+efTotal+gFixedD.inmo+gFixedD.mintos;
 
   // Actualiza total hero
   const te=document.getElementById('g-total-pc');
@@ -653,7 +652,6 @@ function renderGlobal(){
     {n:'Efectivo · TR',     sub:'2,25% TAE'+(gFixedD.ef_tr>0?' · +'+fmt(gFixedD.ef_tr*0.0225)+'€/año':''), v:gFixedD.ef_tr,    c:'#fbbf24', key:'ef_tr'},
     {n:'Efectivo · Banco',  sub:'2,50% TAE'+(gFixedD.ef_banco>0?' · +'+fmt(gFixedD.ef_banco*0.025)+'€/año':''), v:gFixedD.ef_banco, c:'#f59e0b', key:'ef_banco'},
     {n:'Efectivo · IBKR',   sub:'0% TAE',                v:gFixedD.ef_ib,       c:'#94a3b8', key:'ef_ib'},
-    {n:'Plan de Pensiones', sub:'MyInvestor · largo plazo', v:gFixedD.pp,        c:'#a78bfa', key:'pp'},
     {n:'Mintos · P2P',      sub:'Préstamos diversificados', v:gFixedD.mintos,    c:'#f87171', key:'mintos'},
     {n:'Inmobiliario',      sub:'Urbanitae',             v:gFixedD.inmo,         c:'#fb923c', key:'inmo'},
   ];

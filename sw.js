@@ -1,5 +1,5 @@
-// Service Worker — Cartera Pablo v11
-const CACHE = 'cartera-v11';
+// Service Worker — Cartera Pablo v12
+const CACHE = 'cartera-v12';
 const ASSETS = [
   './cartera_pablo_movil.html',
   './cartera_pablo_desktop.html',
