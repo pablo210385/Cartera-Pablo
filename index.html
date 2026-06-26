@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cartera Pablo</title>
+  <script>
+    // Redirige automáticamente según el dispositivo
+    const ua = navigator.userAgent;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+    window.location.replace(isMobile ? './cartera_pablo_movil.html' : './cartera_pablo_desktop.html');
+  </script>
+</head>
+<body></body>
+</html>
