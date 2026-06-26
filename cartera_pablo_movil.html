@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cartera">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #06080f;
@@ -35,7 +35,7 @@
 html{scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--text);
-  font-family:'Syne',sans-serif;
+  font-family:'Inter',sans-serif;
   min-height:100vh;overflow-x:hidden;
   padding-bottom:env(safe-area-inset-bottom,20px);
 }
@@ -210,7 +210,7 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
 .sync-btns{display:flex;gap:8px}
 .sync-btn{
   flex:1;padding:11px;border-radius:10px;
-  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
   border:none;cursor:pointer;transition:opacity 0.2s;
 }
 .sync-btn:active{opacity:0.8}
@@ -251,7 +251,7 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
 .sheet-btns{display:flex;gap:8px}
 .sheet-btn{
   flex:1;padding:13px;border-radius:12px;
-  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
   border:none;cursor:pointer;transition:opacity 0.2s;
 }
 .sheet-btn:active{opacity:0.85}
@@ -504,6 +504,13 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
       <input type="file" id="imp-inp" accept=".json" style="display:none" onchange="importData(event)">
     </div>
   </div>
+  <div class="sync-card animate" style="margin-top:8px">
+    <div class="sync-title">Precios de mercado</div>
+    <div class="sync-sub" id="api-status-m">Configura tu API key de Finnhub para obtener precios actualizados automáticamente.</div>
+    <div class="sync-btns">
+      <button class="sync-btn" id="api-btn-m" onclick="openAPISettingsM()" style="background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.25)">⚙ API Key Finnhub</button>
+    </div>
+  </div>
   <div style="height:8px"></div>
 </div>
 
@@ -552,6 +559,20 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
   <div class="sheet-btns">
     <button class="sheet-btn sheet-btn-cancel" onclick="closeSheet()">Cancelar</button>
     <button class="sheet-btn sheet-btn-save" onclick="saveSheet()">Guardar</button>
+  </div>
+</div>
+
+<!-- ══ API SETTINGS MODAL (MOBILE) ══ -->
+<div class="sheet-overlay" id="api-overlay-m" onclick="closeAPISettingsM()" style="display:none;z-index:400"></div>
+<div id="api-modal-m" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:401;background:#111827;border-radius:16px 16px 0 0;padding:24px 20px 36px;border-top:1px solid rgba(255,255,255,0.08)">
+  <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 20px"></div>
+  <div style="font-size:15px;font-weight:600;color:#f9fafb;margin-bottom:4px">API Key · Finnhub</div>
+  <div style="font-size:12px;color:#6b7280;margin-bottom:16px">Obtén una clave gratuita en <a href="https://finnhub.io" target="_blank" style="color:#60a5fa">finnhub.io</a> → Dashboard</div>
+  <input id="api-key-inp-m" type="text" placeholder="Pega aquí tu API key..."
+    style="width:100%;box-sizing:border-box;background:#1f2937;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;font-size:13px;font-family:'DM Mono',monospace;color:#f9fafb;outline:none;margin-bottom:14px">
+  <div style="display:flex;gap:10px">
+    <button onclick="closeAPISettingsM()" style="flex:1;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#9ca3af;font-size:13px;font-weight:500;cursor:pointer">Cancelar</button>
+    <button onclick="saveAPIKeyM()" style="flex:2;padding:12px;background:#3b82f6;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer">Guardar y probar</button>
   </div>
 </div>
 
@@ -1018,6 +1039,23 @@ function fetchTimeout(url,ms=8000){
   });
 }
 
+// Finnhub API key
+let FHUB_KEY=localStorage.getItem('fhub_apikey')||'';
+async function fetchFromFinnhub(apiKey){
+  const all=[...trP,...ibP];
+  const results=await Promise.allSettled(
+    all.map(p=>
+      fetchTimeout(`https://finnhub.io/api/v1/quote?symbol=${p.yahoo}&token=${apiKey}`,8000)
+        .then(r=>r.ok?r.json():null)
+        .then(d=>({yahoo:p.yahoo,price:d?.c>0?d.c:null}))
+        .catch(()=>({yahoo:p.yahoo,price:null}))
+    )
+  );
+  const prices={};
+  results.forEach(r=>{if(r.status==='fulfilled'&&r.value?.price>0)prices[r.value.yahoo]=r.value.price;});
+  return Object.keys(prices).length>0?prices:null;
+}
+
 // EUR/USD desde API dedicada con CORS real (sin Yahoo, sin proxy)
 async function fetchEURUSD(){
   const apis=['https://open.er-api.com/v6/latest/USD','https://api.exchangerate-api.com/v4/latest/USD'];
@@ -1154,27 +1192,33 @@ async function fetchPrices(){
   document.getElementById('fetch-icon').innerHTML='<span class="spin"></span>';
   let n=0;
   try{
-    // 1. EUR/USD desde fuente fiable con CORS real
     const eurusd=await fetchEURUSD();
     if(eurusd>0)EUR_USD=eurusd;
 
-    // 2. Intento batch (rápido)
-    const batch=await tryBatchFetch();
-    if(batch){
-      const pm={};batch.forEach(q=>{pm[q.symbol]=q.regularMarketPrice;});
-      trP.forEach(p=>{if(pm[p.yahoo]>0){p.m=p.cur==='USD'?pm[p.yahoo]*EUR_USD:pm[p.yahoo];n++;}});
-      ibP.forEach(p=>{if(pm[p.yahoo]>0){p.m=pm[p.yahoo];n++;}});
+    if(FHUB_KEY){
+      // Twelve Data — fiable con API key
+      const prices=await fetchFromFinnhub(FHUB_KEY);
+      if(prices){
+        trP.forEach(p=>{const v=prices[p.yahoo];if(v>0){p.m=p.cur==='USD'?v*EUR_USD:v;n++;}});
+        ibP.forEach(p=>{const v=prices[p.yahoo];if(v>0){p.m=v;n++;}});
+      }
     }
 
-    // 3. Si batch falló, intentar símbolo a símbolo (en paralelo)
+    if(n===0){
+      const batch=await tryBatchFetch();
+      if(batch){
+        const pm={};batch.forEach(q=>{pm[q.symbol]=q.regularMarketPrice;});
+        trP.forEach(p=>{if(pm[p.yahoo]>0){p.m=p.cur==='USD'?pm[p.yahoo]*EUR_USD:pm[p.yahoo];n++;}});
+        ibP.forEach(p=>{if(pm[p.yahoo]>0){p.m=pm[p.yahoo];n++;}});
+      }
+    }
+
     if(n===0){
       const all=[...trP,...ibP];
       const res=await Promise.allSettled(all.map(p=>fetchOnePrice(p.yahoo)));
       res.forEach((r,i)=>{
         if(r.status==='fulfilled'&&r.value>0){
-          const p=all[i];
-          p.m=p.cur==='USD'?r.value*EUR_USD:r.value;
-          n++;
+          const p=all[i];p.m=p.cur==='USD'?r.value*EUR_USD:r.value;n++;
         }
       });
     }
@@ -1183,10 +1227,10 @@ async function fetchPrices(){
     if(n>0){
       const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
       setStatusDone(ts,n);
-      toast('↻ '+n+' precios actualizados');
+      toast('↻ '+n+' precios actualizados'+(FHUB_KEY?' (FH)':''));
     }else{
       setStatusErr();
-      toast('⚠ Precios no disponibles · edítalos manualmente');
+      toast('⚠ Sin precios · toca la tarjeta para editar manualmente');
     }
   }catch(e){
     renderAll();
@@ -1227,6 +1271,56 @@ function importData(e){
   r.readAsText(f);
 }
 
+// ── API KEY SETTINGS (MOBILE) ─────────────────────────────────────────────────
+function updateAPIBtnM(){
+  const btn=document.getElementById('api-btn-m');
+  const status=document.getElementById('api-status-m');
+  if(!btn)return;
+  if(FHUB_KEY){
+    btn.style.background='rgba(34,197,94,0.08)';
+    btn.style.color='#4ade80';
+    btn.style.border='1px solid rgba(34,197,94,0.25)';
+    btn.textContent='✓ API Key configurada';
+    if(status)status.textContent='Finnhub conectado. Los precios se actualizan automáticamente.';
+  } else {
+    btn.style.background='rgba(251,191,36,0.08)';
+    btn.style.color='#fbbf24';
+    btn.style.border='1px solid rgba(251,191,36,0.25)';
+    btn.textContent='⚙ API Key Finnhub';
+    if(status)status.textContent='Configura tu API key de Finnhub para obtener precios actualizados automáticamente.';
+  }
+}
+function openAPISettingsM(){
+  const overlay=document.getElementById('api-overlay-m');
+  const modal=document.getElementById('api-modal-m');
+  const inp=document.getElementById('api-key-inp-m');
+  overlay.style.display='block';modal.style.display='block';
+  inp.value=FHUB_KEY||'';
+  setTimeout(()=>inp.focus(),100);
+}
+function closeAPISettingsM(){
+  document.getElementById('api-overlay-m').style.display='none';
+  document.getElementById('api-modal-m').style.display='none';
+}
+async function saveAPIKeyM(){
+  const k=document.getElementById('api-key-inp-m').value.trim();
+  if(!k){toast('❌ Pega tu API key primero');return;}
+  // Prueba rápida con AAPL
+  try{
+    const r=await fetchTimeout(`https://finnhub.io/api/v1/quote?symbol=AAPL&token=${k}`,8000);
+    const d=await r.json();
+    if(!d||!d.c||d.c<=0)throw new Error('precio vacío');
+    FHUB_KEY=k;
+    localStorage.setItem('fhub_apikey',k);
+    closeAPISettingsM();
+    updateAPIBtnM();
+    toast('✓ API key válida · AAPL $'+d.c.toFixed(2));
+    setTimeout(fetchPrices,300);
+  }catch(err){
+    toast('❌ API key inválida o sin conexión');
+  }
+}
+
 // ── SERVICE WORKER ────────────────────────────────────────────────────────────
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
@@ -1234,6 +1328,7 @@ if('serviceWorker' in navigator){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 renderAll();
+updateAPIBtnM();
 setTimeout(fetchPrices,500);
 </script>
 </body>
