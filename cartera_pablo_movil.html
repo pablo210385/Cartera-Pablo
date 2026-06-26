@@ -463,7 +463,9 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
     <div class="platform-item"><div class="plat-dot" style="background:#38bdf8"></div><div class="plat-info"><div class="plat-name">Trade Republic</div><div class="plat-sub" id="g-tr-sub">13 acciones</div></div><div class="plat-right"><div class="plat-val" id="g-tr-val">—</div><div class="plat-pct" id="g-tr-pct" style="color:#38bdf8">—</div></div></div>
     <div class="platform-item"><div class="plat-dot" style="background:#94a3b8"></div><div class="plat-info"><div class="plat-name">Interactive Brokers</div><div class="plat-sub">4 posiciones</div></div><div class="plat-right"><div class="plat-val" id="g-ib-val">—</div><div class="plat-pct" id="g-ib-pct" style="color:#94a3b8">—</div></div></div>
     <div class="platform-item"><div class="plat-dot" style="background:#fb923c"></div><div class="plat-info"><div class="plat-name">Inmobiliario (Urbanitae)</div><div class="plat-sub">3 proyectos</div></div><div class="plat-right"><div class="plat-val">1.507 €</div><div class="plat-pct" style="color:var(--muted)">3,4%</div></div></div>
-    <div class="platform-item"><div class="plat-dot" style="background:#fbbf24"></div><div class="plat-info"><div class="plat-name">Efectivo / Caja</div><div class="plat-sub">MyInvestor · cuentas</div></div><div class="plat-right"><div class="plat-val" id="g-ef-val">3.253 €</div><div class="plat-pct" id="g-ef-pct" style="color:var(--muted)">—</div></div></div>
+    <div class="platform-item" onclick="editEfectivo('tr')" style="cursor:pointer"><div class="plat-dot" style="background:#fbbf24"></div><div class="plat-info"><div class="plat-name">Efectivo · Trade Republic</div><div class="plat-sub">2,25% TAE · <span id="g-ef-tr-renta" style="color:#4ade80">—</span></div></div><div class="plat-right"><div class="plat-val" id="g-ef-tr-val">— €</div><div class="plat-pct" id="g-ef-tr-pct" style="color:#fbbf24">—</div></div><span class="edit-arrow">›</span></div>
+    <div class="platform-item" onclick="editEfectivo('banco')" style="cursor:pointer"><div class="plat-dot" style="background:#f59e0b"></div><div class="plat-info"><div class="plat-name">Efectivo · Banco/Cuenta</div><div class="plat-sub">2,50% TAE · <span id="g-ef-banco-renta" style="color:#4ade80">—</span></div></div><div class="plat-right"><div class="plat-val" id="g-ef-banco-val">— €</div><div class="plat-pct" id="g-ef-banco-pct" style="color:#f59e0b">—</div></div><span class="edit-arrow">›</span></div>
+    <div class="platform-item" onclick="editEfectivo('ib')" style="cursor:pointer"><div class="plat-dot" style="background:#94a3b8"></div><div class="plat-info"><div class="plat-name">Efectivo · IBKR</div><div class="plat-sub" style="color:var(--muted)">0% · sin rentabilidad</div></div><div class="plat-right"><div class="plat-val" id="g-ef-ib-val">— €</div><div class="plat-pct" id="g-ef-ib-pct" style="color:#94a3b8">—</div></div><span class="edit-arrow">›</span></div>
     <div class="platform-item"><div class="plat-dot" style="background:#f87171"></div><div class="plat-info"><div class="plat-name">Pensiones + P2P (Mintos)</div><div class="plat-sub">PP MyInvestor · Mintos 761 €</div></div><div class="plat-right"><div class="plat-val">1.615 €</div><div class="plat-pct" style="color:var(--muted)">3,6%</div></div></div>
   </div>
 
@@ -557,6 +559,20 @@ body::after{content:'';position:fixed;bottom:-20%;right:-20%;width:60%;height:60
   <div class="sheet-btns">
     <button class="sheet-btn sheet-btn-cancel" onclick="closeSheet()">Cancelar</button>
     <button class="sheet-btn sheet-btn-save" onclick="saveSheet()">Guardar</button>
+  </div>
+</div>
+
+<!-- ══ EFECTIVO EDIT MODAL ══ -->
+<div class="sheet-overlay" id="ef-overlay" onclick="closeEfectivo()" style="display:none;z-index:400"></div>
+<div id="ef-modal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:401;background:#111827;border-radius:16px 16px 0 0;padding:24px 20px 36px;border-top:1px solid rgba(255,255,255,0.08)">
+  <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 20px"></div>
+  <div style="font-size:15px;font-weight:600;color:#f9fafb;margin-bottom:4px" id="ef-modal-title">Efectivo</div>
+  <div style="font-size:12px;color:#6b7280;margin-bottom:16px" id="ef-modal-sub">Saldo actual en esta cuenta</div>
+  <input id="ef-modal-inp" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"
+    style="width:100%;box-sizing:border-box;background:#1f2937;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;font-size:16px;font-family:'DM Mono',monospace;color:#f9fafb;outline:none;margin-bottom:14px">
+  <div style="display:flex;gap:10px">
+    <button onclick="closeEfectivo()" style="flex:1;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#9ca3af;font-size:13px;font-weight:500;cursor:pointer">Cancelar</button>
+    <button onclick="saveEfectivo()" style="flex:2;padding:12px;background:#3b82f6;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer">Guardar</button>
   </div>
 </div>
 
@@ -914,7 +930,7 @@ function renderCharts(){
       {l:'Fondos MI',  v:gMiMkt||0,  c:'#34d399'},
       {l:'Trade Rep.', v:trMkt,       c:'#38bdf8'},
       {l:'IBKR',       v:ibMkt,       c:'#94a3b8'},
-      {l:'Efectivo',   v:G_EFECTIVO,  c:'#fbbf24'},
+      {l:'Efectivo',   v:gEf.tr+gEf.banco+gEf.ib, c:'#fbbf24'},
       {l:'Inmobil.',   v:G_INMO,      c:'#fb923c'},
       {l:'PP + P2P',   v:G_PP,        c:'#f87171'},
     ].filter(x=>x.v>0);
@@ -927,45 +943,93 @@ function renderCharts(){
   }
 }
 
+// ── EFECTIVO EDITABLE ─────────────────────────────────────────────────────────
+const EF_DEFS = {tr:{tae:2.25,label:'Efectivo · Trade Republic',col:'#fbbf24'},banco:{tae:2.5,label:'Efectivo · Banco/Cuenta',col:'#f59e0b'},ib:{tae:0,label:'Efectivo · IBKR',col:'#94a3b8'}};
+let gEf = {tr:0, banco:0, ib:0};
+
+function loadEfectivo(){
+  const sv=loadLS();
+  ['tr','banco','ib'].forEach(k=>{const v=sv['ef_'+k];if(v!=null)gEf[k]=parseFloat(v)||0;});
+}
+function saveEfectivo_ls(){
+  const sv=loadLS();
+  ['tr','banco','ib'].forEach(k=>{sv['ef_'+k]=gEf[k];});
+  try{localStorage.setItem(LS_KEY,JSON.stringify(sv));}catch(e){}
+}
+
+let _efCtx=null;
+function editEfectivo(tipo){
+  _efCtx=tipo;
+  const d=EF_DEFS[tipo];
+  document.getElementById('ef-modal-title').textContent=d.label;
+  document.getElementById('ef-modal-sub').textContent=d.tae>0?d.tae.toFixed(2)+'% TAE · introduce el saldo actual':'Sin rentabilidad · introduce el saldo actual';
+  document.getElementById('ef-modal-inp').value=gEf[tipo]||'';
+  document.getElementById('ef-overlay').style.display='block';
+  document.getElementById('ef-modal').style.display='block';
+  setTimeout(()=>document.getElementById('ef-modal-inp').focus(),100);
+}
+function closeEfectivo(){
+  document.getElementById('ef-overlay').style.display='none';
+  document.getElementById('ef-modal').style.display='none';
+  _efCtx=null;
+}
+function saveEfectivo(){
+  if(!_efCtx)return;
+  const v=parseFloat(document.getElementById('ef-modal-inp').value)||0;
+  gEf[_efCtx]=v;
+  saveEfectivo_ls();
+  closeEfectivo();
+  renderGlobal();
+  renderCharts();
+  toast('✓ Efectivo actualizado');
+}
+
 // ── RENDER GLOBAL ─────────────────────────────────────────────────────────────
-// Valores calculados por cada renderX() y usados aquí
 let gMiMkt=0, gTrMkt=0, gIbMktE=0;
-const G_EFECTIVO=3253, G_INMO=1507, G_PP=1615;
+const G_INMO=1507, G_PP=1615;
 
 function renderGlobal(){
-  const total=gMiMkt+gTrMkt+gIbMktE+G_EFECTIVO+G_INMO+G_PP;
+  const gEfTotal=gEf.tr+gEf.banco+gEf.ib;
+  const total=gMiMkt+gTrMkt+gIbMktE+gEfTotal+G_INMO+G_PP;
   if(total<=0)return;
   const pct2=v=>+(v/total*100).toFixed(1);
   const fmtP=v=>v.toFixed(1)+'%';
-  // Hero total
-  const el=document.getElementById('g-total');
-  if(el)el.textContent=fmt(total)+' €';
-  // Platform items pct
-  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent='~'+fmtP(pct2(v));};
-  set('g-mi-pct',gMiMkt);
-  if(gMiMkt>0){const e=document.getElementById('g-mi-val');if(e)e.textContent=fmt(gMiMkt)+' €';}
-  set('g-ef-pct',G_EFECTIVO);
+  const setEl=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
+  // Hero
+  setEl('g-total',fmt(total)+' €');
+  // MI
+  if(gMiMkt>0)setEl('g-mi-val',fmt(gMiMkt)+' €');
+  setEl('g-mi-pct','~'+fmtP(pct2(gMiMkt)));
+  // TR
+  setEl('g-tr-pct','~'+fmtP(pct2(gTrMkt)));
+  // IB
+  setEl('g-ib-pct','~'+fmtP(pct2(gIbMktE)));
+  // Efectivo × 3
+  ['tr','banco','ib'].forEach(k=>{
+    const v=gEf[k], d=EF_DEFS[k];
+    setEl('g-ef-'+k+'-val', v>0?fmt(v)+' €':'Toca para editar');
+    setEl('g-ef-'+k+'-pct', v>0?'~'+fmtP(pct2(v)):'—');
+    if(d.tae>0){
+      const renta=v*d.tae/100;
+      setEl('g-ef-'+k+'-renta', v>0?'+'+fmt(renta)+'€/año':'—');
+    }
+  });
   // Barras
   const bar=(idPct,idFill,v)=>{
     const p=pct2(v);
-    const ep=document.getElementById(idPct);if(ep)ep.textContent='~'+fmtP(p);
+    if(idPct){const e=document.getElementById(idPct);if(e)e.textContent='~'+fmtP(p);}
     const ef=document.getElementById(idFill);if(ef)ef.style.width=Math.min(p,100)+'%';
   };
   bar('g-mi-bar-pct','g-mi-bar',gMiMkt);
   bar('g-tr-bar-pct','g-tr-bar',gTrMkt);
   bar('g-ib-bar-pct','g-ib-bar',gIbMktE);
-  bar('g-ef-bar-pct','g-ef-bar',G_EFECTIVO);
+  bar('g-ef-bar-pct','g-ef-bar',gEfTotal);
   bar(null,'g-inm-bar',G_INMO);
   bar(null,'g-pp-bar',G_PP);
-  // TR y IB pct en platform-list (actualizados con total real)
-  const trP2=pct2(gTrMkt);
-  const ep2=document.getElementById('g-tr-pct');if(ep2)ep2.textContent='~'+fmtP(trP2);
-  const ibP2=pct2(gIbMktE);
-  const ep3=document.getElementById('g-ib-pct');if(ep3)ep3.textContent='~'+fmtP(ibP2);
   // Objetivo 100k
   const p100=Math.min(+(total/1000).toFixed(1),100);
-  const os=document.getElementById('g-obj-100k-sub');if(os)os.textContent='Horizonte 2031 · actual '+fmt(total)+' €';
-  const op=document.getElementById('g-obj-100k-pct');if(op)op.textContent=p100+'%';
+  setEl('g-obj-100k-sub','Horizonte 2031 · actual '+fmt(total)+' €');
+  setEl('g-obj-100k-pct',p100+'%');
   const of=document.getElementById('g-obj-100k-fill');if(of)of.style.width=p100+'%';
 }
 
@@ -1361,6 +1425,7 @@ if('serviceWorker' in navigator){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+loadEfectivo();
 renderAll();
 updateAPIBtnM();
 setTimeout(fetchPrices,500);
